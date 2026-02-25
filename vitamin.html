@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>비타민 신지니 챌린지</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --main-pink: #ff9a9e;
+            --sub-pink: #fad0c4;
+            --special-gold: #ffd700;
+            --soft-bg: #fffcfc;
+            --d-day-gold: #ffc107;
+            --progress-bg: #eee;
+        }
+
+        body {
+            font-family: 'Gaegu', cursive;
+            background-color: var(--soft-bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #5d5d5d;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin: 10px 0;
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            color: #ff9a9e;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .progress-section {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-top: 30px;
+        }
+
+        /* ✅ 러너: scaleX(-1)로 오른쪽 고정 */
+        #runner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 1.6rem;
+            transition: left 0.5s ease;
+            transform: translateX(-50%) scaleX(-1) !important;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            background: var(--progress-bg);
+            height: 14px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--sub-pink), var(--main-pink));
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-left: 10px;
+            min-width: 45px;
+        }
+
+        .video-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-family: 'Gaegu';
+            font-size: 1.4rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            margin-bottom: 25px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .setup-box {
+            background: #fff;
+            padding: 8px 18px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(255, 154, 158, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px dashed var(--sub-pink);
+        }
+
+        select {
+            width: 60px;
+            border: none;
+            border-bottom: 2px solid var(--main-pink);
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Gaegu';
+            color: #ff6b6b;
+            outline: none;
+            background: transparent;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 70px);
+            gap: 12px;
+            justify-content: center;
+            width: 100%;
+            max-width: 420px;
+            padding-bottom: 30px;
+            align-items: center;
+        }
+
+        .group-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            border-bottom: 1px dashed #ffe0e0;
+            padding-bottom: 5px;
+        }
+
+        .group-label {
+            font-size: 0.9rem;
+            color: #ffb7b7;
+        }
+
+        .step-reset-btn {
+            background: none;
+            border: none;
+            color: #ddd;
+            font-family: 'Gaegu';
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* ✅ 카드 클릭 판정 강화 */
+        .day-card {
+            background: #fff;
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            border: 2px solid #fff5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer !important;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        /* ✅ 특별한 날이 완료되었을 때 (작심삼일 강조 유지) */
+        .day-card.special.done {
+            border-color: var(--special-gold);
+            /* 특별한 날의 테두리 색상 유지 */
+            background-color: #fffdf2;
+            /* 특별한 날의 배경 색상 유지 */
+            transform: translateY(-2px);
+            /* 완료 시 애니메이션 효과는 유지 */
+        }
+
+        /* ✅ 내부 텍스트나 스티커가 클릭을 가로채지 못하게 함 */
+        .day-num,
+        .sticker,
+        .day-card::before {
+            pointer-events: none !important;
+        }
+
+        .day-card.done {
+            border-color: var(--main-pink);
+            background: #fffafa;
+            transform: translateY(-2px);
+        }
+
+        .day-num {
+            position: absolute;
+            top: 5px;
+            left: 7px;
+            font-size: 11px;
+            color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .day-card.done .day-num {
+            color: var(--main-pink);
+            opacity: 0.3;
+        }
+
+        .day-card.is-dday {
+            border: none;
+            background: none;
+            width: 80px;
+            height: 80px;
+            justify-self: center;
+        }
+
+        .day-card.is-dday::before {
+            content: '★';
+            position: absolute;
+            font-size: 85px;
+            color: #fff9e6;
+            line-height: 1;
+            z-index: -1;
+            transition: all 0.2s;
+        }
+
+        .day-card.is-dday.done::before {
+            color: var(--d-day-gold);
+        }
+
+        .day-card.is-dday .day-num {
+            top: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffc107;
+            font-size: 10px;
+        }
+
+        .sticker {
+            font-size: 30px;
+            animation: popIn 0.4s both;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .page-footer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 40px 0 60px;
+        }
+
+        .reset-btn {
+            background: #f4f4f4;
+            color: #ccc;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Gaegu';
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔥 뼈말라 챌린지 🔥</h1>
+    <div class="quote">"오늘도 근육 맛집 신지니와 함께!"</div>
+
+    <div class="progress-section">
+        <div id="runner">🏃‍♂️</div>
+        <div style="display:flex; align-items:center;">
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div id="progressText" class="progress-text">0%</div>
+        </div>
+    </div>
+
+    <a href="https://youtu.be/T-bVqdhqW2U?si=QZb7DWKKUHnid2NY" target="_blank" class="video-btn">🔥 오늘의 운동 시작</a>
+
+    <div class="setup-box">
+        <span>목표</span>
+        <select id="daysInput">
+            <option value="7">7</option>
+            <option value="14">14</option>
+            <option value="21">21</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="60">60</option>
+            <option value="66">66</option>
+            <option value="80">80</option>
+            <option value="90">90</option>
+            <option value="100">100</option>
+        </select>
+        <span>일 도전!</span>
+        <button onclick="updateTarget()"
+            style="background:none; border:none; color:var(--main-pink); cursor:pointer; font-family:'Gaegu'; font-weight:bold;">[변경]</button>
+    </div>
+
+    <div id="calendar" class="grid"></div>
+
+    <footer class="page-footer">
+        <button class="reset-btn" onclick="resetData()">전체 데이터 초기화</button>
+    </footer>
+
+    <script>
+        const cats = ['🐱', '😸', '😼', '😽', '😻', '🐾', '🎀'], specials = ['💎', '🎉', '🎁', '⭐', '🌈', '🍭', '✨'], dDayEmojis = ['👑', '🏅', '🏆', '🎖️', '🔥', '💪', '🎊'];
+        let db = JSON.parse(localStorage.getItem('shinji_final_v999')) || { target: 50, done: {} };
+
+        function updateUI() {
+            const doneCount = Object.keys(db.done).length;
+            const percent = Math.round((doneCount / db.target) * 100) || 0;
+            const runner = document.getElementById('runner');
+            const container = document.querySelector('.progress-container');
+
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').innerText = percent + '%';
+
+            if (container && runner) {
+                const moveX = (percent / 100) * container.offsetWidth;
+                runner.style.left = moveX + 'px';
+                runner.innerText = (percent >= 100) ? '🥳' : '🏃‍♂️';
+            }
+        }
+
+        function render() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            document.getElementById('daysInput').value = db.target;
+
+            for (let i = 1; i <= db.target; i++) {
+                if ((i - 1) % 10 === 0) {
+                    const stepNum = Math.floor(i / 10) + 1;
+                    calendar.insertAdjacentHTML('beforeend', `
+                        <div class="group-header">
+                            <span class="group-label">Step ${stepNum}.</span>
+                            <button class="step-reset-btn" onclick="resetStep(${stepNum})">[초기화]</button>
+                        </div>
+                    `);
+                }
+
+                const isSpecial = (i % 3 === 0);
+                const isLastDay = (i === db.target);
+                const data = db.done[i];
+                const card = document.createElement('div');
+                card.className = `day-card ${data ? 'done' : ''} ${isLastDay ? 'is-dday' : ''} ${isSpecial ? 'special' : ''}`;
+                card.innerHTML = `<span class="day-num">${i}</span>`;
+                if (data) card.insertAdjacentHTML('beforeend', `<span class="sticker">${data}</span>`);
+
+                // ✅ 클릭 핸들러
+                card.onclick = () => {
+                    if (!db.done[i]) {
+                        db.done[i] = isLastDay ? dDayEmojis[Math.floor(Math.random() * dDayEmojis.length)] :
+                            (isSpecial ? specials[Math.floor(Math.random() * specials.length)] : cats[Math.floor(Math.random() * cats.length)]);
+                        if (isLastDay) {
+                            confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 } });
+                            alert('목표를 달성했습니다! 축하합니다!'); // D-day 달성 시 안내 메시지
+                        }
+                        else confetti({ particleCount: isSpecial ? 150 : 70, spread: 70, origin: { y: 0.7 } }); // 일반/특별한 날 폭죽
+                    } else {
+                        delete db.done[i];
+                    }
+                    save(); render();
+                };
+                calendar.appendChild(card);
+            }
+            setTimeout(updateUI, 50);
+        }
+
+        function resetStep(step) {
+            if (confirm(`Step ${step} 초기화?`)) {
+                for (let i = (step - 1) * 10 + 1; i <= step * 10; i++) delete db.done[i];
+                save(); render();
+            }
+        }
+
+        function updateTarget() {
+            const val = parseInt(document.getElementById('daysInput').value);
+            if (val > 0) { db.target = val; save(); render(); }
+        }
+
+        function save() { localStorage.setItem('shinji_final_v999', JSON.stringify(db)); }
+        function resetData() { if (confirm('전체 초기화?')) { db = { target: 50, done: {} }; save(); render(); } }
+
+        render();
+        window.onresize = updateUI;
+    </script>
+</body>
+
+</html>
