@@ -36,6 +36,28 @@
             text-align: center;
         }
 
+        /* ✅ 상단 사용자 이름(닉네임) 입력 스타일 */
+        .top-message {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: -5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #ownerInput {
+            font-family: 'Gaegu', cursive;
+            font-size: 1.4rem;
+            color: var(--main-pink);
+            border: none;
+            border-bottom: 2px solid var(--sub-pink);
+            width: 100px;
+            text-align: center;
+            outline: none;
+            background: transparent;
+        }
+
         .quote {
             font-size: 1.1rem;
             color: #ff9a9e;
@@ -278,10 +300,26 @@
             border: none;
             font-family: 'Gaegu';
         }
+
+        .share-btn {
+            background: var(--main-pink);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Gaegu';
+            margin-right: 10px;
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.2);
+        }
     </style>
 </head>
 
 <body>
+    <div class="top-message">
+        <input type="text" id="ownerInput" oninput="saveOwner()" placeholder="닉네임">의 운동기록
+    </div>
     <h1>🔥 뼈말라 챌린지 🔥</h1>
     <div class="quote">"오늘도 근육 맛집 신지니와 함께!"</div>
 
@@ -320,12 +358,13 @@
     <div id="calendar" class="grid"></div>
 
     <footer class="page-footer">
+        <button class="share-btn" onclick="shareProgress()">📢 친구에게 자랑하기</button>
         <button class="reset-btn" onclick="resetData()">전체 데이터 초기화</button>
     </footer>
 
     <script>
         const cats = ['🐱', '😸', '😼', '😽', '😻', '🐾', '🎀'], specials = ['💎', '🎉', '🎁', '⭐', '🌈', '🍭', '✨'], dDayEmojis = ['👑', '🏅', '🏆', '🎖️', '🔥', '💪', '🎊'];
-        let db = JSON.parse(localStorage.getItem('shinji_final_v999')) || { target: 50, done: {} };
+        let db = JSON.parse(localStorage.getItem('shinji_final_v999')) || { target: 50, done: {}, owner: '' };
 
         function updateUI() {
             const doneCount = Object.keys(db.done).length;
@@ -347,6 +386,7 @@
             const calendar = document.getElementById('calendar');
             calendar.innerHTML = '';
             document.getElementById('daysInput').value = db.target;
+            document.getElementById('ownerInput').value = db.owner || '';
 
             for (let i = 1; i <= db.target; i++) {
                 if ((i - 1) % 10 === 0) {
@@ -387,20 +427,42 @@
             setTimeout(updateUI, 50);
         }
 
-        function resetStep(step) {
-            if (confirm(`Step ${step} 초기화?`)) {
-                for (let i = (step - 1) * 10 + 1; i <= step * 10; i++) delete db.done[i];
-                save(); render();
-            }
-        }
-
         function updateTarget() {
             const val = parseInt(document.getElementById('daysInput').value);
             if (val > 0) { db.target = val; save(); render(); }
         }
 
+        function resetStep(step) {
+            if (confirm(`Step ${step} 초기화 할까요?`)) {
+                for (let i = (step - 1) * 10 + 1; i <= step * 10; i++) delete db.done[i];
+                save(); render();
+            }
+        }
+
+        function saveOwner() {
+            db.owner = document.getElementById('ownerInput').value;
+            save();
+        }
+
         function save() { localStorage.setItem('shinji_final_v999', JSON.stringify(db)); }
-        function resetData() { if (confirm('전체 초기화?')) { db = { target: 50, done: {} }; save(); render(); } }
+        function resetData() { if (confirm('전체 초기화 할까요?')) { db = { target: 50, done: {}, owner: '' }; save(); render(); } }
+
+        function shareProgress() {
+            const doneCount = Object.keys(db.done).length;
+            const percent = Math.round((doneCount / db.target) * 100) || 0;
+            const challengeTitle = db.owner ? `${db.owner}님의 뼈말라 챌린지` : '뼈말라 챌린지';
+            const text = `🔥 ${challengeTitle} 🔥\n현재 달성률: ${percent}%\n목표: ${db.target}일 중 ${doneCount}일 완료!\n오늘도 근육 맛집 신지니와 함께! 💪`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: '비타민 신지니 챌린지',
+                    text: text,
+                    url: window.location.href,
+                }).catch(() => { });
+            } else {
+                prompt('복사해서 친구들에게 공유하세요!', text);
+            }
+        }
 
         render();
         window.onresize = updateUI;
