@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do List ✨</title>
+    <style>
+        :root {
+            --primary: #818cf8;
+            --danger: #fda4af;
+            --success: #6ee7b7;
+            --warning: #fde047;
+            --bg-gradient: linear-gradient(135deg, #fce7f3 0%, #dbeafe 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Nanum Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .todo-container {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            height: 94vh;
+            padding: 1.5rem;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        @media (max-height: 700px) {
+            .todo-container {
+                height: 98vh;
+                padding: 1rem;
+                border-radius: 25px;
+            }
+        }
+
+        .calendar-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 30px;
+            border: 3px dashed #e2e8f0;
+            cursor: pointer;
+        }
+
+        #currentDateText {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--primary);
+            background: #f1f5f9;
+            padding: 8px 25px;
+            border-radius: 50px;
+        }
+
+        .custom-calendar {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 380px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            padding: 20px;
+            display: none;
+            border: 2px solid #f8fafc;
+            box-sizing: border-box;
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .cal-day-label {
+            font-size: 0.7rem;
+            font-weight: 900;
+            color: #cbd5e1;
+        }
+
+        .cal-date {
+            padding: 10px 0;
+            font-size: 0.8rem;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            font-weight: 600;
+            border: none;
+            background: none;
+        }
+
+        .cal-date.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cal-date.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 15px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        input#searchInput {
+            width: 100%;
+            border: 2.5px solid #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 15px;
+            outline: none;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-size: 0.85rem;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .dash-val {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .prio-chip {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: 2px solid #f1f5f9;
+            background: white;
+            color: #94a3b8;
+            flex: 1;
+            text-align: center;
+        }
+
+        .prio-chip.active[data-val="3"] {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .prio-chip.active[data-val="2"] {
+            background: var(--warning);
+            color: #854d0e;
+            border-color: var(--warning);
+        }
+
+        .prio-chip.active[data-val="1"] {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .scroll-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        h4 {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            margin: 15px 0 10px 5px;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        li {
+            background: #fff;
+            border: 2px solid #f8fafc;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        li.checked {
+            opacity: 0.6;
+        }
+
+        li.checked .task-text {
+            text-decoration: line-through;
+            color: #cbd5e1;
+        }
+
+        li.trash-item {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            opacity: 0.7;
+        }
+
+        li.trash-item .task-text {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .search-date-tag {
+            font-size: 0.65rem;
+            color: var(--primary);
+            font-weight: 900;
+            background: #eef2ff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .deleted-at {
+            font-size: 0.6rem;
+            color: #f472b6;
+            font-weight: bold;
+            background: #fff1f2;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
+        .task-text {
+            cursor: pointer;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .p-badge {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 900;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .b-3 {
+            background: var(--danger);
+        }
+
+        .b-2 {
+            background: var(--warning);
+            color: #854d0e;
+        }
+
+        .b-1 {
+            background: var(--success);
+        }
+
+        .memo-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #fab005;
+            border-radius: 50%;
+            margin-left: 2px;
+            vertical-align: top;
+        }
+
+        .memo-area {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            background: #fff9db;
+            border-radius: 15px;
+            transition: 0.3s ease;
+        }
+
+        .memo-area.open {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #fab005;
+        }
+
+        .memo-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.8rem;
+            outline: none;
+            height: 50px;
+            resize: none;
+            color: #854d0e;
+            font-family: inherit;
+        }
+
+        mark {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="todo-container">
+        <header class="header-section">
+            <div class="calendar-nav" id="calendarToggle">
+                <span id="currentDateText"></span>
+            </div>
+            <div class="custom-calendar" id="calendarPopup">
+                <div class="cal-header">
+                    <button onclick="event.stopPropagation(); changeMonth(-1)"
+                        style="border:none; background:none; cursor:pointer; color:var(--primary); font-size: 1.2rem;">◀</button>
+                    <b id="calMonthText" style="color:var(--primary);"></b>
+                    <button onclick="event.stopPropagation(); changeMonth(1)"
+                        style="border:none; background:none; cursor:pointer; color:var(--primary); font-size: 1.2rem;">▶</button>
+                </div>
+                <div class="cal-grid" id="calGrid"></div>
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">전체</button>
+                <button class="filter-btn" data-filter="3">긴급</button>
+                <button class="filter-btn" data-filter="2">보통</button>
+                <button class="filter-btn" data-filter="1">여유</button>
+            </div>
+            <input type="text" id="searchInput" placeholder="전체 검색 🔍">
+            <div class="dashboard" id="dashboardArea">
+                <div class="dash-item">남은 일 <span id="count-pending" class="dash-val">0</span></div>
+                <div class="dash-item">완료 <span id="count-done" class="dash-val">0</span></div>
+                <div class="dash-item">달성률 <span id="count-percent" class="dash-val">0%</span></div>
+            </div>
+            <div id="inputArea">
+                <div style="display:flex; justify-content:center; gap:8px; margin-bottom:12px;">
+                    <div class="prio-chip" data-val="3">긴급</div>
+                    <div class="prio-chip active" data-val="2">보통</div>
+                    <div class="prio-chip" data-val="1">여유</div>
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:15px;">
+                    <input type="text" id="todoInput"
+                        style="flex:1; border:2.5px solid #f1f5f9; padding:12px; border-radius:15px; outline:none; font-size: 0.9rem;"
+                        placeholder="할 일 적기!">
+                    <button id="add-btn"
+                        style="background:var(--primary); color:white; border:none; padding:0 15px; border-radius:15px; font-weight:900; cursor:pointer;">추가</button>
+                </div>
+            </div>
+        </header>
+        <main class="scroll-area">
+            <div id="searchViewTitle"
+                style="display:none; color:var(--primary); font-weight:900; margin-bottom:12px; font-size:0.85rem;">✨ 전체
+                검색 결과</div>
+            <h4 id="pendingHeader">Doing 🔥</h4>
+            <ul id="pendingList"></ul>
+            <h4 id="doneHeader">Done 🏆</h4>
+            <ul id="completedList"></ul>
+            <h4 id="trashHeader">Trash 👻 <small id="clearBtn"
+                    style="cursor:pointer; color:var(--danger);">(비우기)</small></h4>
+            <ul id="trashList"></ul>
+        </main>
+    </div>
+
+    <script>
+        const getKSTDate = (d = new Date()) => d.toLocaleDateString('sv-SE');
+        let selectedDate = getKSTDate(), searchQuery = "", currentFilter = "all", inputPrio = "2";
+        let viewDate = new Date();
+        const prioInfo = { "3": { text: "긴급", class: "b-3", next: "2" }, "2": { text: "보통", class: "b-2", next: "1" }, "1": { text: "여유", class: "b-1", next: "3" } };
+
+        const getDB = (date) => JSON.parse(localStorage.getItem(date)) || { pending: [], done: [], trash: [] };
+        const saveDB = (date, data) => { localStorage.setItem(date, JSON.stringify(data)); renderCalendar(); refresh(); };
+
+        function getHighlightedText(text) {
+            if (!searchQuery.trim()) return text;
+            const re = new RegExp(`(${searchQuery})`, "gi");
+            return text.replace(re, '<mark>$1</mark>');
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calGrid'), monthText = document.getElementById('calMonthText');
+            grid.innerHTML = "";
+            const y = viewDate.getFullYear(), m = viewDate.getMonth();
+            monthText.innerText = `${y}년 ${m + 1}월`;
+            ['일', '월', '화', '수', '목', '금', '토'].forEach(d => {
+                const lb = document.createElement('div'); lb.className = 'cal-day-label'; lb.innerText = d; grid.appendChild(lb);
+            });
+            const firstDay = new Date(y, m, 1).getDay(), lastDate = new Date(y, m + 1, 0).getDate();
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
+            for (let d = 1; d <= lastDate; d++) {
+                const dStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const el = document.createElement('button');
+                el.className = 'cal-date' + (dStr === selectedDate ? ' active' : '');
+                el.innerText = d;
+                const db = JSON.parse(localStorage.getItem(dStr));
+                if (db && (db.pending.length > 0 || db.done.length > 0)) el.classList.add('has-event');
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedDate = dStr;
+                    closeCalendar(); // 선택 시 자동 닫기
+                    searchQuery = "";
+                    document.getElementById('searchInput').value = "";
+                    refresh();
+                    renderCalendar();
+                };
+                grid.appendChild(el);
+            }
+        }
+
+        // ✨ 달력 제어 함수
+        const closeCalendar = () => { document.getElementById('calendarPopup').style.display = 'none'; };
+        const toggleCalendar = (e) => {
+            e.stopPropagation();
+            const p = document.getElementById('calendarPopup');
+            const isOpening = p.style.display !== 'block';
+            p.style.display = isOpening ? 'block' : 'none';
+            if (isOpening) renderCalendar();
+        };
+
+        document.getElementById('calendarToggle').onclick = toggleCalendar;
+
+        // ✨ 바깥 클릭 시 달력 닫기 로직
+        window.addEventListener('click', (e) => {
+            const p = document.getElementById('calendarPopup');
+            const nav = document.getElementById('calendarToggle');
+            if (p.style.display === 'block' && !p.contains(e.target) && !nav.contains(e.target)) {
+                closeCalendar();
+            }
+        });
+
+        function refresh() {
+            const isSearching = searchQuery.trim().length > 0;
+            const displayData = { pending: [], done: [], trash: [] };
+
+            document.getElementById('searchViewTitle').style.display = isSearching ? 'block' : 'none';
+            document.getElementById('inputArea').style.display = isSearching ? 'none' : 'block';
+            document.getElementById('dashboardArea').style.display = isSearching ? 'none' : 'flex';
+            document.getElementById('currentDateText').innerText = isSearching ? "검색 결과" : selectedDate;
+
+            if (isSearching) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const dateKey = localStorage.key(i);
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) continue;
+                    const db = JSON.parse(localStorage.getItem(dateKey));
+                    ['pending', 'done', 'trash'].forEach(type => {
+                        db[type].forEach((item, idx) => {
+                            if (item.text.includes(searchQuery)) displayData[type].push({ ...item, date: dateKey, oIdx: idx });
+                        });
+                    });
+                }
+            } else {
+                const data = getDB(selectedDate);
+                ['pending', 'done', 'trash'].forEach(type => {
+                    displayData[type] = data[type].map((item, idx) => ({ ...item, date: selectedDate, oIdx: idx }));
+                });
+            }
+
+            const draw = (id, list, type) => {
+                const el = document.getElementById(id); el.innerHTML = "";
+                list.filter(item => currentFilter === "all" || item.prio === currentFilter).forEach((item) => {
+                    const li = document.createElement('li');
+                    if (type === 'done') li.className = 'checked';
+                    if (type === 'trash') li.className = 'trash-item';
+
+                    const memoDot = (item.memo && item.memo.trim()) ? `<span class="memo-indicator"></span>` : "";
+                    const dateTag = isSearching ? `<span class="search-date-tag" onclick="goToDate('${item.date}')">📅 ${item.date}</span><br>` : "";
+                    const trashTag = (type === 'trash' && item.delDate) ? `<span class="deleted-at">🗑️ ${item.delDate} 삭제됨</span><br>` : '';
+
+                    li.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; flex:1;">
+                            ${type !== 'trash' ? `<input type="checkbox" ${type === 'done' ? 'checked' : ''} onclick="actionTask('${type}', ${item.oIdx}, 'move', '${item.date}')">` : ''}
+                            <div style="margin-left:12px; flex:1;">
+                                ${dateTag}${trashTag}
+                                <span class="p-badge ${prioInfo[item.prio].class}" onclick="actionTask('${type}', ${item.oIdx}, 'rotate', '${item.date}')">${prioInfo[item.prio].text}</span><br>
+                                <span class="task-text" onclick="editTask('${type}', ${item.oIdx}, this, '${item.date}')">${getHighlightedText(item.text)}</span>
+                                ${type !== 'trash' ? `<button onclick="toggleMemo('${type}', ${item.oIdx}, '${item.date}')" style="border:none; background:none; cursor:pointer;">📝${memoDot}</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="actions">
+                            ${type === 'trash' ? `<button onclick="actionTask('${type}', ${item.oIdx}, 'restore', '${item.date}')" style="border:none; background:none; cursor:pointer; margin-right:5px;">🔄</button>` : ''}
+                            <button onclick="actionTask('${type}', ${item.oIdx}, 'delete', '${item.date}')" style="border:none; background:none; cursor:pointer;">❌</button>
+                        </div>
+                    </div><div id="memo-${type}-${item.oIdx}-${item.date}" class="memo-area"><textarea class="memo-input" onblur="saveMemo('${type}', ${item.oIdx}, this.value, '${item.date}')" placeholder="메모 입력...">${item.memo || ""}</textarea></div>`;
+                    el.appendChild(li);
+                });
+            };
+
+            draw('pendingList', displayData.pending, 'pending');
+            draw('completedList', displayData.done, 'done');
+            draw('trashList', displayData.trash, 'trash');
+
+            if (!isSearching) {
+                const data = getDB(selectedDate);
+                document.getElementById('count-pending').innerText = data.pending.length;
+                document.getElementById('count-done').innerText = data.done.length;
+                const total = data.pending.length + data.done.length;
+                document.getElementById('count-percent').innerText = (total === 0 ? 0 : Math.round((data.done.length / total) * 100)) + "%";
+            }
+        }
+
+        window.actionTask = (type, idx, action, date) => {
+            const data = getDB(date);
+            if (action === 'move') {
+                const item = data[type].splice(idx, 1)[0];
+                (type === 'pending' ? data.done : data.pending).push(item);
+            } else if (action === 'delete') {
+                const item = data[type].splice(idx, 1)[0];
+                if (type !== 'trash') { item.delDate = getKSTDate(); data.trash.push(item); }
+            } else if (action === 'restore') {
+                const item = data.trash.splice(idx, 1)[0];
+                delete item.delDate; data.pending.push(item);
+            } else if (action === 'rotate') {
+                data[type][idx].prio = prioInfo[data[type][idx].prio].next;
+            }
+            saveDB(date, data);
+        };
+
+        window.goToDate = (date) => { selectedDate = date; searchQuery = ""; document.getElementById('searchInput').value = ""; viewDate = new Date(date); refresh(); renderCalendar(); };
+        window.editTask = (t, i, el, date) => {
+            if (t === 'trash' || t === 'done') return;
+            const data = getDB(date);
+            const input = document.createElement('input');
+            input.value = data[t][i].text;
+            input.style.cssText = "border:2px solid var(--primary); border-radius:10px; padding:8px; width:100%; box-sizing:border-box;";
+            input.onblur = () => { if (input.value.trim()) data[t][i].text = input.value; saveDB(date, data); };
+            input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
+            el.replaceWith(input); input.focus();
+        };
+
+        window.toggleMemo = (t, i, date) => document.getElementById(`memo-${t}-${i}-${date}`).classList.toggle('open');
+        window.saveMemo = (t, i, v, date) => { const data = getDB(date); data[t][i].memo = v; saveDB(date, data); };
+        window.changeMonth = (v) => { viewDate.setMonth(viewDate.getMonth() + v); renderCalendar(); };
+
+        document.getElementById('add-btn').onclick = () => {
+            const input = document.getElementById('todoInput'); if (!input.value.trim()) return;
+            const d = getDB(selectedDate); d.pending.push({ text: input.value, prio: inputPrio, memo: "" });
+            saveDB(selectedDate, d); input.value = "";
+        };
+
+        document.getElementById('todoInput').onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('add-btn').click(); };
+        document.getElementById('searchInput').oninput = (e) => { searchQuery = e.target.value; refresh(); };
+
+        document.querySelectorAll('.prio-chip').forEach(c => c.onclick = () => {
+            document.querySelectorAll('.prio-chip').forEach(chip => chip.classList.remove('active'));
+            c.classList.add('active'); inputPrio = c.dataset.val;
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.onclick = () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); currentFilter = btn.dataset.filter; refresh();
+        });
+
+        document.getElementById('clearBtn').onclick = () => { if (confirm("휴지통을 비울까요?")) { const d = getDB(selectedDate); d.trash = []; saveDB(selectedDate, d); } };
+
+        renderCalendar(); refresh();
+    </script>
+</body>
+
+</html>
