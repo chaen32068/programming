@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Workspace</title>
+    <style>
+        :root {
+            --bg: #05070a;
+            --surface: #111418;
+            --accent: #38bdf8; /* 🧊 요청하신 하늘색/파란색 포인트 */
+            --text: #ffffff;
+            --sub-text: #71717a;
+            --border: #27272a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* 헤더: 터미널 경로 스타일 */
+        header { 
+            width: 100%; 
+            max-width: 700px; 
+            margin-bottom: 60px; 
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+        }
+        header h1 { font-size: 1.8rem; margin: 0; font-weight: 400; }
+        header span { color: var(--sub-text); font-size: 0.9rem; }
+
+        .shelf-container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 650px;
+        }
+
+        .slot-wrapper { opacity: 0; transform: translateY(15px); }
+        @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* 🚀 슬롯 UI */
+        .slot {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            padding: 22px 25px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        /* 슝~ 밀리는 효과 */
+        @media (hover: hover) {
+            .slot:hover {
+                transform: translateX(30px);
+                border-color: var(--accent);
+                background: #161b22;
+            }
+            .slot:hover::before {
+                content: '>';
+                position: absolute;
+                left: -25px;
+                color: var(--accent);
+                font-weight: bold;
+            }
+        }
+
+        .icon {
+            font-size: 1.4rem;
+            margin-right: 25px;
+            filter: grayscale(1);
+            transition: 0.3s;
+        }
+        .slot:hover .icon { filter: grayscale(0) scale(1.2); }
+
+        .info { flex-grow: 1; }
+        .info h3 { margin: 0; font-size: 1.1rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .info p { margin: 8px 0 0; color: var(--sub-text); font-size: 0.85rem; }
+
+        /* 기술 스택 (주석 스타일) */
+        .stack { color: var(--sub-text); font-size: 0.75rem; }
+        .slot:hover .stack { color: var(--accent); }
+
+        .arrow { font-size: 1rem; color: var(--accent); opacity: 0; transition: 0.3s; }
+        .slot:hover .arrow { opacity: 1; transform: translateX(5px); }
+
+        /* 페이지네이션 */
+        .pagination { margin-top: 60px; display: flex; gap: 15px; }
+        .p-btn {
+            background: none; color: var(--sub-text); border: 1px solid var(--border);
+            padding: 8px 16px; cursor: pointer; transition: 0.3s;
+            font-family: inherit;
+        }
+        .p-btn:hover { border-color: var(--text); color: var(--text); }
+        .p-btn.active { border-color: var(--accent); color: var(--accent); }
+
+        @media (max-width: 600px) {
+            .slot:hover { transform: translateX(10px); }
+            header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>root@chaen:~/workspace</h1>
+        <span>// total 10 projects found.</span>
+    </header>
+
+    <div class="shelf-container" id="shelf"></div>
+    <div class="pagination" id="pages"></div>
+
+    <script>
+        const data = [
+            { 
+                name: "VITAMIN", 
+                desc: "Web interaction project for vitality", 
+                url: "https://chaen32068.github.io", 
+                icon: "💊",
+                lang: "// Vanilla.js"
+            },
+            ...Array.from({length: 24}, (_, i) => ({
+                name: `PROJECT_${String(i + 2).padStart(2, '0')}`,
+                desc: "Archived module and experimental source code",
+                url: "#",
+                icon: ["⚡", "💻", "🔥", "⚙️", "🧪"][i % 5],
+                lang: "// Ongoing"
+            }))
+        ];
+
+        let cur = 1;
+        const limit = 10;
+
+        function draw(page) {
+            const list = document.getElementById('shelf');
+            list.innerHTML = "";
+            const slice = data.slice((page-1)*limit, page*limit);
+
+            slice.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = "slot-wrapper";
+                div.style.animation = `slideIn 0.4s ease forwards ${i * 0.04}s`;
+                
+                div.innerHTML = `
+                    <a href="${p.url}" target="_blank" class="slot">
+                        <span class="icon">${p.icon}</span>
+                        <div class="info">
+                            <h3>${p.name} <span class="stack">${p.lang}</span></h3>
+                            <p>${p.desc}</p>
+                        </div>
+                        <span class="arrow">_RUN</span>
+                    </a>
+                `;
+                list.appendChild(div);
+            });
+            drawNav();
+        }
+
+        function drawNav() {
+            const nav = document.getElementById('pages');
+            nav.innerHTML = "";
+            const total = Math.ceil(data.length / limit);
+            for (let i = 1; i <= total; i++) {
+                const b = document.createElement('button');
+                b.innerText = `[${i}]`;
+                b.className = `p-btn ${i === cur ? 'active' : ''}`;
+                b.onclick = () => {
+                    cur = i;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => draw(i), 300);
+                };
+                nav.appendChild(b);
+            }
+        }
+        draw(1);
+    </script>
+</body>
+</html>
