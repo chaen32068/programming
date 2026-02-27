@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematic Portfolio | With Project Links</title>
+    <style>
+        @import url('https://fonts.googleapis.com');
+
+        :root {
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --accent: #ccff00;
+            --sub: rgba(255, 255, 255, 0.5);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            /* 기본 커서 유지 (접근성: 사용자가 커서 위치를 놓치지 않게 함) */
+            cursor: default;
+            transition: background 1s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        /* 스킵 네비게이션: 키보드 사용자를 위한 필수 요소 */
+        .skip-nav {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent);
+            color: #000;
+            padding: 8px;
+            z-index: 10005;
+            text-decoration: none;
+        }
+
+        .skip-nav:focus {
+            top: 0;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.04;
+            background: url('https://grainy-gradients.vercel.app');
+        }
+
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 10001;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        /* 커스텀 커서: pointer-events: none은 필수이며, 모바일/포커스 시 시각적 보조 용도 */
+        #cursor,
+        #cursor-follower {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            display: none;
+            /* JS에서 마우스 이동 시에만 표시 */
+        }
+
+        #cursor {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        #cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--accent);
+            transition: transform 0.15s ease-out, width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .zoom-section {
+            height: 200vh;
+            position: relative;
+        }
+
+        .sticky-box {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .zoom-text {
+            font-family: 'Syncopate';
+            font-size: clamp(3rem, 15vw, 12rem);
+            font-weight: 900;
+            z-index: 2;
+            color: #fff;
+            text-align: center;
+        }
+
+        .bg-image-box {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .bg-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            transform: scale(1.2);
+        }
+
+        .project-grid {
+            padding: 10vh 10% 20vh;
+            display: flex;
+            flex-direction: column;
+            gap: 15vh;
+        }
+
+        /* 접근성: 버튼으로 변경하여 키보드 탭 접근 가능하게 함 */
+        .project-card {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(80px);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .project-card:nth-child(even) {
+            align-self: flex-end;
+        }
+
+        .project-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 키보드 포커스 스타일 */
+        .project-card:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 10px;
+        }
+
+        .img-wrap {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .img-wrap img {
+            width: 110%;
+            height: 110%;
+            object-fit: cover;
+            filter: grayscale(1);
+            transition: 0.8s;
+        }
+
+        .project-card:hover img,
+        .project-card:focus img {
+            filter: grayscale(0);
+            transform: scale(1);
+        }
+
+        .project-info {
+            margin-top: -30px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .project-info h2 {
+            font-family: 'Syncopate';
+            font-size: clamp(2rem, 6vw, 4.5rem);
+            margin: 0;
+            -webkit-text-stroke: 1px #fff;
+            color: transparent;
+            transition: 0.5s;
+        }
+
+        .project-card:hover h2,
+        .project-card:focus h2 {
+            color: var(--accent);
+            -webkit-text-stroke: 0px;
+        }
+
+        /* 모달 (ARIA 적용) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 10002;
+            opacity: 0;
+            visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(25px);
+            transition: 0.5s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 50px;
+            align-items: center;
+            background: #111;
+            padding: 60px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transform: translateY(50px);
+            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--text);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-family: 'Syncopate';
+            font-weight: 900;
+            cursor: pointer;
+            color: var(--bg);
+            font-size: 0.7rem;
+        }
+
+        .visit-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 15px 35px;
+            background: var(--accent);
+            color: #000;
+            text-decoration: none;
+            font-family: 'Syncopate';
+            font-weight: 900;
+            font-size: 0.8rem;
+            border-radius: 5px;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .footer {
+            padding: 10vh 10%;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Syncopate';
+            font-size: 0.7rem;
+            color: var(--sub);
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                grid-template-columns: 1fr;
+                padding: 40px 20px;
+                overflow-y: auto;
+                max-height: 90vh;
+            }
+
+            .project-grid {
+                padding: 10vh 24px;
+            }
+
+            .visit-btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-nav">본문 바로가기</a>
+
+    <div class="noise" aria-hidden="true"></div>
+    <div id="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div id="cursor" aria-hidden="true"></div>
+    <div id="cursor-follower" aria-hidden="true"></div>
+
+    <section class="zoom-section" aria-label="소개 섹션">
+        <div class="sticky-box">
+            <div class="bg-image-box" id="zoomBox">
+                <img src="./pexels-therato-3408744.jpg" alt="시각적 배경 이미지">
+            </div>
+            <h1 class="zoom-text" id="zoomText">PORTFOLIO</h1>
+        </div>
+    </section>
+
+    <main class="project-grid" id="main-content">
+        <!-- 탭 접근이 가능한 button 태그로 수정 -->
+        <button class="project-card" data-title="NEXUS" data-bg="#0e0e0e" data-link="https://github.com"
+            data-desc="미래지향적인 UI와 인터랙티브 모션을 결합한 실험적 웹 플랫폼입니다." aria-haspopup="dialog">
+            <div class="img-wrap"><img src="./pexels-therato-3408744.jpg" alt="NEXUS 프로젝트 썸네일"></div>
+            <div class="project-info">
+                <h2>WORK 01</h2>
+            </div>
+        </button>
+
+        <button class="project-card" data-title="VISION" data-bg="#1a0d0d" data-link="https://google.com"
+            data-desc="강렬한 레드 톤의 파격적인 타이포그래피 실험이 담긴 작업물입니다." aria-haspopup="dialog">
+            <div class="img-wrap"><img src="./pexels-therato-3408744.jpg"
+                    style="filter: hue-rotate(90deg) grayscale(1);" alt="VISION 프로젝트 썸네일"></div>
+            <div class="project-info">
+                <h2>WORK 02</h2>
+            </div>
+        </button>
+    </main>
+
+    <footer class="footer" data-bg="#000">
+        <div>DESIGNED BY YOU</div>
+        <div>© 2026 ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <!-- 모달 접근성: aria-modal, role 적용 -->
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn" aria-label="모달 닫기">CLOSE</button>
+            <div id="modalBody" style="display: contents;"></div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            const body = document.body;
+            const zoomBox = document.getElementById('zoomBox');
+            const zoomText = document.getElementById('zoomText');
+            const cursor = document.getElementById('cursor');
+            const follower = document.getElementById('cursor-follower');
+            const progressBar = document.getElementById('progress-bar');
+            const overlay = document.getElementById('modalOverlay');
+            let lastFocusedElement;
+
+            // 1. 커서 트래킹 (마우스 사용 시에만 표시)
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.display = 'block';
+                follower.style.display = 'block';
+                cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+                follower.style.left = e.clientX + 'px'; follower.style.top = e.clientY + 'px';
+            });
+
+            // 2. 스크롤 효과 & 프로그레스
+            window.addEventListener('scroll', () => {
+                const scroll = window.pageYOffset;
+                const winH = window.innerHeight;
+                const val = scroll / winH;
+
+                if (scroll < winH * 2) {
+                    zoomText.style.transform = `scale(${1 + val * 3})`;
+                    zoomText.style.opacity = 1 - (val * 1.5);
+                    zoomBox.querySelector('img').style.transform = `scale(${1.2 - val * 0.2})`;
+                    zoomBox.style.opacity = 1 - val;
+                }
+
+                const height = document.documentElement.scrollHeight - winH;
+                const progress = (scroll / height * 100);
+                progressBar.style.width = progress + "%";
+                document.getElementById('progress-container').setAttribute('aria-valuenow', Math.round(progress));
+
+                document.querySelectorAll('.project-card, .footer').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < winH / 2 && rect.bottom > winH / 2) {
+                        body.style.backgroundColor = el.dataset.bg || '#0a0a0a';
+                    }
+                });
+            });
+
+            // 3. 3D 틸트 & 호버 효과
+            document.querySelectorAll('.project-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                    card.style.transform = `rotateX(${(y - rect.height / 2) / 25}deg) rotateY(${(rect.width / 2 - x) / 25}deg)`;
+                    follower.style.width = '100px'; follower.style.height = '100px';
+                    follower.style.background = 'rgba(204, 255, 0, 0.15)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'rotateX(0) rotateY(0)';
+                    follower.style.width = '40px'; follower.style.height = '40px';
+                    follower.style.background = 'transparent';
+                });
+            });
+
+            // 4. 프로젝트 노출 애니메이션
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+
+            // 5. 모달 제어
+            document.querySelectorAll('.project-card').forEach(card => {
+                observer.observe(card);
+                card.onclick = () => {
+                    lastFocusedElement = card; // 닫을 때 돌아갈 위치 저장
+                    const title = card.dataset.title;
+                    const desc = card.dataset.desc;
+                    const link = card.dataset.link;
+                    const imgSrc = card.querySelector('img').src;
+
+                    document.getElementById('modalBody').innerHTML = `
+                        <img src="${imgSrc}" alt="${title} 상세 이미지" style="width:100%; border-radius:10px;">
+                        <div class="modal-info">
+                            <h2 id="modalTitle" style="font-family:'Syncopate'; font-size:3rem; margin:0; color:var(--accent);">${title}</h2>
+                            <p style="color:#888; font-size:1.1rem; line-height:1.8; margin-top:30px;">${desc}</p>
+                            <a href="${link}" target="_blank" class="visit-btn">VIEW PROJECT (새창)</a>
+                        </div>
+                    `;
+                    overlay.classList.add('active');
+                    body.style.overflow = 'hidden';
+                    document.getElementById('closeBtn').focus(); // 포커스 이동
+                };
+            });
+
+            const closeModal = () => {
+                overlay.classList.remove('active');
+                body.style.overflow = 'auto';
+                if (lastFocusedElement) lastFocusedElement.focus();
+            };
+
+            document.getElementById('closeBtn').onclick = closeModal;
+
+            // ESC 키로 모달 닫기 (접근성 필수)
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('active')) closeModal();
+            });
+        };
+    </script>
+</body>
+
+</html>

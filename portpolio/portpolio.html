@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure JS Portfolio</title>
+    <style>
+        /* 1. 디자인 베이스 */
+        :root {
+            --bg: #0a0a0a;
+            --accent: #00ff88;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #fff;
+            font-family: sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* 2. 섹션 레이아웃 */
+        .project-item {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid #222;
+            perspective: 1000px;
+            /* 3D 효과를 위한 설정 */
+        }
+
+        .container {
+            display: flex;
+            width: 85%;
+            max-width: 1200px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+            z-index: 2;
+        }
+
+        /* 3. 애니메이션 초기 상태 (준비) */
+        .info {
+            width: 40%;
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .img-box {
+            width: 55%;
+            height: 65vh;
+            overflow: hidden;
+            background: #1a1a1a;
+            border-radius: 4px;
+            opacity: 0;
+            transform: scale(1.2) rotateY(-10deg);
+            transition: all 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-target: cover;
+            transition: transform 2s ease;
+        }
+
+        /* 4. 활성화 상태 (스크롤 시 적용) */
+        .project-item.visible .info {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .project-item.visible .img-box {
+            opacity: 1;
+            transform: scale(1) rotateY(0);
+        }
+
+        .project-item.visible .img-box img {
+            transform: scale(1);
+        }
+
+        /* 배경 큰 숫자 */
+        .bg-num {
+            position: absolute;
+            right: 5%;
+            bottom: 10%;
+            font-size: 25vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 1;
+            transition: transform 2s ease;
+        }
+
+        .project-item.visible .bg-num {
+            transform: translateY(-50px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 프로젝트 01 -->
+    <section class="project-item">
+        <div class="container">
+            <div class="info">
+                <h2 style="font-size: 4rem; margin:0;">PROJECT 01</h2>
+                <p style="color:#aaa; line-height:1.8; margin-top:20px;">
+                    외부 라이브러리 없이 순수 자바스크립트와 CSS만으로 구현한 인터랙션입니다.
+                    스크롤 시 요소들이 3D 공간에서 튀어나오는 듯한 연출을 적용했습니다.
+                </p>
+            </div>
+            <div class="img-box">
+                <img src="./pexels-therato-3408744.jpg" alt="Work 1">
+            </div>
+        </div>
+        <div class="bg-num">01</div>
+    </section>
+
+    <!-- 프로젝트 02 (구조 반복) -->
+    <section class="project-item" style="background: #0d0d0d;">
+        <div class="container" style="flex-direction: row-reverse;">
+            <div class="info">
+                <h2 style="font-size: 4rem; margin:0;">PROJECT 02</h2>
+                <p style="color:#aaa; line-height:1.8; margin-top:20px;">
+                    비대칭 레이아웃을 통해 시각적 지루함을 덜어냈습니다.
+                    취업용 포트폴리오에 적합한 깔끔하고 세련된 모션입니다.
+                </p>
+            </div>
+            <div class="img-box">
+                <img src="./pexels-therato-3408744.jpg" alt="Work 2">
+            </div>
+        </div>
+        <div class="bg-num" style="left:5%; right:auto;">02</div>
+    </section>
+
+    <script>
+        /** 
+         * 5. 순수 자바스크립트 인터랙션 엔진 
+         * Intersection Observer를 사용하여 요소가 화면에 보일 때 클래스를 추가합니다.
+         */
+        const observerOptions = {
+            threshold: 0.3 // 섹션이 30% 이상 보일 때 작동
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    // 다시 위로 올렸을 때 애니메이션을 초기화하고 싶다면 아래 주석 해제
+                    // entry.target.classList.remove('visible');
+                }
+            });
+        }, observerOptions);
+
+        // 모든 섹션 관찰 시작
+        document.querySelectorAll('.project-item').forEach(section => {
+            observer.observe(section);
+        });
+
+        // 보너스: 마우스 움직임에 따른 이미지 미세 반응 (패럴랙스)
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+
+            document.querySelectorAll('.visible .img-box img').forEach(img => {
+                img.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+            });
+        });
+    </script>
+</body>
+
+</html>

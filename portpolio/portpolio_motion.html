@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avant-Garde Portfolio | The Ultimate Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com');
+
+        :root {
+            --bg: #0e0e0e;
+            --text: #ffffff;
+            --accent: #00ff88;
+            --point: #ccff00;
+            --sub: rgba(255, 255, 255, 0.5);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 1. 형광 초록 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) #0a0a0a;
+        }
+
+        /* 2. 상단 형광 초록 프로그레스 바 */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 10000;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            box-shadow: 0 0 15px var(--accent);
+            transition: width 0.1s ease-out;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            transition: background 1.2s ease;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* 3. 형광 초록 커스텀 커서 */
+        #cursor {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        #cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.1s ease-out, width 0.3s, height 0.3s;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 4. 히어로 섹션 & 스크롤 힌트 */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Syncopate';
+            font-size: clamp(3rem, 12vw, 10rem);
+            line-height: 0.85;
+            margin: 0;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .hover-area {
+            display: inline-block;
+            transition: color 0.4s ease;
+            cursor: none;
+        }
+
+        .hover-area:hover {
+            color: var(--point);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 60px;
+            left: 10%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+        .scroll-arrow {
+            width: 15px;
+            height: 15px;
+            border-bottom: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            transform: rotate(45deg);
+            animation: scrollMove 2s infinite ease-in-out;
+        }
+
+        @keyframes scrollMove {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translate(-10px, -10px);
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translate(10px, 10px);
+            }
+        }
+
+        /* 5. 에디토리얼 비대칭 프로젝트 레이아웃 */
+        .project-section {
+            min-height: 100vh;
+            padding: 15vh 10%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 769px) {
+            .project-section:nth-child(even) {
+                align-items: flex-end;
+                text-align: right;
+            }
+
+            .project-card {
+                width: 55%;
+            }
+        }
+
+        .project-card {
+            position: relative;
+            perspective: 1500px;
+            cursor: none;
+            opacity: 0;
+            transform: translateY(80px);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .project-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .img-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #1a1a1a;
+            box-shadow: 30px 30px 60px rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+        }
+
+        .img-container img {
+            width: 115%;
+            height: 115%;
+            object-fit: cover;
+            filter: grayscale(1);
+            transition: 1s ease;
+            transform: scale(1.1);
+        }
+
+        .project-card:hover img {
+            filter: grayscale(0);
+            transform: scale(1);
+        }
+
+        .project-info {
+            margin-top: -40px;
+            z-index: 2;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .project-info h2 {
+            font-family: 'Syncopate';
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            margin: 0;
+            -webkit-text-stroke: 1px #fff;
+            color: transparent;
+            transition: 0.6s;
+            font-weight: 900;
+        }
+
+        .project-card:hover .project-info h2 {
+            color: #fff;
+            -webkit-text-stroke: 0px;
+        }
+
+        /* 6. 다이나믹 모달 팝업 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            padding: 5%;
+            backdrop-filter: blur(15px);
+            transition: 0.5s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-body {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 60px;
+            max-width: 1200px;
+            margin: auto;
+            align-items: center;
+        }
+
+        .modal-body img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            background: var(--accent);
+            border: none;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-family: 'Syncopate';
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 2100;
+        }
+
+        /* 7. 미니멀 푸터 카피라이트 */
+        .footer {
+            padding: 10vh 10% 5vh;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--sub);
+            text-transform: uppercase;
+            font-family: 'Syncopate';
+        }
+
+        @media (max-width: 768px) {
+            body {
+                cursor: auto;
+            }
+
+            #cursor,
+            #cursor-follower {
+                display: none;
+            }
+
+            .project-section {
+                padding: 10vh 24px;
+                align-items: flex-start !important;
+                text-align: left !important;
+            }
+
+            .project-card {
+                width: 100%;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+                padding-top: 60px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 프로그레스 바 -->
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <!-- 커스텀 커서 -->
+    <div id="cursor"></div>
+    <div id="cursor-follower"></div>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+        <h1 class="reveal">
+            <span class="hover-area">UNFOLD</span><br>
+            <span class="hover-area">THE</span><br>
+            <span class="hover-area" style="color:var(--accent)">LIMIT.</span>
+        </h1>
+        <div class="scroll-hint">
+            <span>SCROLL TO DISCOVER</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- 프로젝트 01 -->
+    <div class="project-section" data-bg="#0e0e0e">
+        <div class="project-card" data-title="NOIR CONCEPT" data-detail="어둠과 빛의 대비를 활용한 시네마틱 인터페이스 프로젝트입니다.">
+            <div class="img-container">
+                <img src="./pexels-therato-3408744.jpg" alt="P1" onerror="this.src='https://via.placeholder.com'">
+            </div>
+            <div class="project-info">
+                <h2 class="hover-area">NOIR 01</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 프로젝트 02 -->
+    <div class="project-section" data-bg="#1a0d0d">
+        <div class="project-card" data-title="CRIMSON LAB" data-detail="강렬한 레드 톤과 파격적인 타이포그래피 실험이 담긴 작업물입니다.">
+            <div class="img-container">
+                <img src="./pexels-therato-3408744.jpg" alt="P2" style="filter: sepia(0.8) hue-rotate(-50deg);"
+                    onerror="this.src='https://via.placeholder.com'">
+            </div>
+            <div class="project-info">
+                <h2 class="hover-area">CRIMSON 02</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer" data-bg="#050505">
+        <div class="footer-content">
+            <div>DESIGNED & DEVELOPED BY YOU</div>
+            <div>© 2026 ALL RIGHTS RESERVED.</div>
+        </div>
+    </footer>
+
+    <!-- 모달 상세페이지 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <button class="close-btn" id="closeBtn">CLOSE</button>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            const body = document.body;
+            const cursor = document.getElementById('cursor');
+            const follower = document.getElementById('cursor-follower');
+            const progressBar = document.getElementById('progress-bar');
+            const overlay = document.getElementById('modalOverlay');
+            const modalBody = document.getElementById('modalBody');
+
+            // 1. 커서 트래킹 & 호버 피드백
+            document.addEventListener('mousemove', (e) => {
+                const x = e.clientX, y = e.clientY;
+                cursor.style.left = x + 'px'; cursor.style.top = y + 'px';
+                follower.style.left = x + 'px'; follower.style.top = y + 'px';
+            });
+
+            document.querySelectorAll('.hover-area, .img-container, .close-btn').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    follower.style.width = '80px'; follower.style.height = '80px';
+                    follower.style.background = 'rgba(0, 255, 136, 0.1)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    follower.style.width = '40px'; follower.style.height = '40px';
+                    follower.style.background = 'transparent';
+                });
+            });
+
+            // 2. 스크롤 프로그레스 바 & 배경색 전환
+            window.addEventListener('scroll', () => {
+                const winScroll = document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                progressBar.style.width = (winScroll / height * 100) + "%";
+
+                document.querySelectorAll('.project-section, .footer').forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+                        body.style.backgroundColor = el.dataset.bg;
+                    }
+                });
+            });
+
+            // 3. PC 전용 3D 틸트 효과
+            if (window.innerWidth > 768) {
+                document.querySelectorAll('.project-card').forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                        card.style.transform = `rotateX(${(y - rect.height / 2) / 25}deg) rotateY(${(rect.width / 2 - x) / 25}deg)`;
+                    });
+                    card.addEventListener('mouseleave', () => card.style.transform = 'rotateX(0) rotateY(0)');
+                });
+            }
+
+            // 4. 스크롤 등장 애니메이션 (Reveal)
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.project-card, .hero h1').forEach(el => revealObserver.observe(el));
+
+            // 5. 다이나믹 모달 제어
+            document.querySelectorAll('.project-card').forEach(card => {
+                card.onclick = () => {
+                    const title = card.getAttribute('data-title');
+                    const detail = card.getAttribute('data-detail');
+                    const imgSrc = card.querySelector('img').src;
+
+                    modalBody.innerHTML = `
+                        <img src="${imgSrc}" style="filter:none;">
+                        <div>
+                            <h2 style="font-family:'Syncopate'; font-size:3rem; margin:0; color:var(--accent);">${title}</h2>
+                            <p style="color:#888; font-size:1.1rem; line-height:1.7; margin-top:30px;">${detail}</p>
+                        </div>
+                    `;
+                    overlay.classList.add('active');
+                    body.style.overflow = 'hidden';
+                };
+            });
+
+            document.getElementById('closeBtn').onclick = () => {
+                overlay.classList.remove('active');
+                body.style.overflow = 'auto';
+            };
+        };
+    </script>
+</body>
+
+</html>

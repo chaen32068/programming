@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Portfolio | Modal Added</title>
+    <style>
+        /* 1. 변수 설정 */
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --sub: #888888;
+            --card-bg: #111;
+            --modal-bg: #161616;
+            /* 다크모드에서 배경보다 약간 밝게 설정 */
+            --accent: #00ff88;
+            --border: #222;
+            --modal-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1);
+            --overlay: rgba(0, 0, 0, 0.8);
+        }
+
+        [data-theme='light'] {
+            --bg: #ffffff;
+            --text: #111111;
+            --sub: #666666;
+            --card-bg: #f5f5f5;
+            --modal-bg: #ffffff;
+            --accent: #007aff;
+            --border: #eeeeee;
+            --modal-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+            --overlay: rgba(255, 255, 255, 0.85);
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            transition: background 0.4s, color 0.4s;
+            overflow-x: hidden;
+        }
+
+        /* 2. 테마 토글 버튼 */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        /* 3. 레이아웃 */
+        .header {
+            padding: 12vh 10% 8vh;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 0.9;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            padding: 60px 10%;
+        }
+
+        .project-card {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            cursor: pointer;
+        }
+
+        .project-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .img-container {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            border-radius: 12px;
+            background: var(--card-bg);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.6s ease;
+        }
+
+        .project-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .info-top h3 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .info-top span {
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .desc {
+            font-size: 0.95rem;
+            color: var(--sub);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* 4. 모달 스타일 (구분감 개선 버전) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            backdrop-filter: blur(12px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: var(--modal-bg);
+            /* 배경보다 밝은 회색 적용 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* 미세한 테두리 추가 */
+            box-shadow: var(--modal-shadow);
+            /* 깊이감 있는 그림자 */
+            border-radius: 28px;
+            padding: 40px;
+            transform: translateY(30px);
+            transition: transform 0.4s;
+            position: relative;
+        }
+
+        [data-theme='light'] .modal-content {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .close-btn {
+            position: sticky;
+            top: 0;
+            left: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .modal-body img {
+            width: 100%;
+            border-radius: 12px;
+            margin: 24px 0;
+            border: 1px solid var(--border);
+        }
+
+        .modal-body h2 {
+            font-size: 2.5rem;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .modal-body p {
+            color: var(--sub);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+                padding: 40px 24px;
+            }
+
+            .header {
+                padding: 80px 24px 40px;
+            }
+
+            .modal-content {
+                padding: 24px;
+                border-radius: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="theme-toggle" id="themeBtn">
+        <span id="themeText">DARK MODE</span>
+    </button>
+
+    <header class="header">
+        <h1>CREATIVE<br>ARCHIVE.</h1>
+        <p style="color: var(--sub);">Focused on Digital Interaction & UI/UX Design</p>
+    </header>
+
+    <main class="project-grid">
+        <div class="project-card" data-title="Next-Gen Interface"
+            data-detail="사용자 경험을 극대화하기 위해 설계된 차세대 웹 인터페이스 프로젝트입니다. 부드러운 스크롤 애니메이션과 직관적인 네비게이션이 특징입니다.">
+            <div class="img-container">
+                <img src="./pexels-therato-3408744.jpg" alt="P1">
+            </div>
+            <div class="info-box">
+                <div class="info-top" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Next-Gen Interface</h3>
+                    <span>2024</span>
+                </div>
+                <p class="desc">미니멀리즘과 강력한 애니메이션을 결합한 웹 프로젝트입니다.</p>
+            </div>
+        </div>
+
+        <div class="project-card" data-title="Data Visual Lab"
+            data-detail="복잡한 빅데이터를 시각화하여 사용자가 한눈에 정보를 파악할 수 있도록 돕는 대시보드 시스템입니다.">
+            <div class="img-container">
+                <img src="./pexels-therato-3408744.jpg" alt="P2" style="filter: saturate(0.5) contrast(1.2);">
+            </div>
+            <div class="info-box">
+                <div class="info-top" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Data Visual Lab</h3>
+                    <span>2023</span>
+                </div>
+                <p class="desc">복잡한 정보를 직관적으로 풀어낸 시각화 아카이브입니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn">✕</button>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 테마 전환
+        const themeBtn = document.getElementById('themeBtn');
+        const themeText = document.getElementById('themeText');
+        const html = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        updateButtonText(savedTheme);
+
+        themeBtn.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateButtonText(next);
+        });
+
+        function updateButtonText(t) { themeText.innerText = t === 'dark' ? '🌙 DARK MODE' : '☀️ LIGHT MODE'; }
+
+        // 2. 등장 애니메이션
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.project-card').forEach(card => observer.observe(card));
+
+        // 3. 모달 제어
+        const overlay = document.getElementById('modalOverlay');
+        const modalBody = document.getElementById('modalBody');
+        const closeBtn = document.getElementById('closeBtn');
+
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.getAttribute('data-title');
+                const detail = card.getAttribute('data-detail');
+                const imgSrc = card.querySelector('img').src;
+
+                modalBody.innerHTML = `
+                    <h2>${title}</h2>
+                    <img src="${imgSrc}" alt="Detail">
+                    <p>${detail}</p>
+                    <div style="margin-top:30px; font-weight:bold; color:var(--accent);">Built with HTML, CSS, JS</div>
+                `;
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        const closeModal = () => { overlay.classList.remove('active'); document.body.style.overflow = 'auto'; };
+        closeBtn.onclick = closeModal;
+        overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+    </script>
+</body>
+
+</html>
