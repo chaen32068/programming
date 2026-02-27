@@ -1,0 +1,584 @@
+<style>
+    :root {
+        --primary: #2c3e50;
+        --accent: #27ae60;
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Noto Sans KR', sans-serif;
+        margin: 0;
+        background: #fcfcfc;
+        color: #333;
+        overflow-x: hidden;
+    }
+
+    button,
+    a {
+        cursor: pointer;
+        border: none;
+        outline: none;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* --- Header: 검색창 확장 & 돋보기 --- */
+    header {
+        background: white;
+        padding: 0 5%;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        position: sticky;
+        top: 0;
+        z-index: 2000;
+    }
+
+    .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .header-center {
+        flex: 1;
+        max-width: 800px;
+        position: relative;
+        margin: 0 40px;
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 15px 30px;
+        border-radius: 40px;
+        border: 2px solid #eee;
+        background: #f8f9fa;
+        outline: none;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .search-box:focus {
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--accent);
+        font-size: 1.2rem;
+    }
+
+    .autocomplete-list {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border: 1px solid #eee;
+        display: none;
+        z-index: 2001;
+        overflow: hidden;
+    }
+
+    .suggestion-item {
+        padding: 15px 30px;
+        cursor: pointer;
+        border-bottom: 1px solid #f9f9f9;
+    }
+
+    .suggestion-item:hover {
+        background: #f0fdf4;
+        color: var(--accent);
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-shrink: 0;
+    }
+
+    .cart-status {
+        position: relative;
+        font-size: 1.5rem;
+    }
+
+    #count {
+        background: var(--accent);
+        color: white;
+        font-size: 0.75rem;
+        padding: 2px 7px;
+        border-radius: 10px;
+        position: absolute;
+        top: -10px;
+        right: -15px;
+    }
+
+    /* --- [추가] 장바구니 팝업 --- */
+    .cart-popup {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        width: 320px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid #eee;
+        display: none;
+        padding: 20px;
+        z-index: 3000;
+    }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.9rem;
+    }
+
+    .remove-btn {
+        color: #e74c3c;
+        font-size: 0.8rem;
+        background: none;
+    }
+
+    /* --- Hero Slider --- */
+    .hero-slider {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        background: #f4f7f6;
+    }
+
+    .slider-wrapper {
+        display: flex;
+        height: 100%;
+    }
+
+    .slide {
+        flex: 0 0 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .special-slide {
+        display: flex;
+        width: 100%;
+        max-width: 1000px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 5%;
+        gap: 50px;
+    }
+
+    .special-text {
+        flex: 1;
+        text-align: left;
+        min-width: 450px;
+    }
+
+    .special-text h2 {
+        font-size: 3.2rem;
+        margin-bottom: 20px;
+        line-height: 1.2;
+        word-break: keep-all;
+    }
+
+    .special-img-box img {
+        width: 240px;
+        height: 340px;
+        object-fit: cover;
+        box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 2px 10px 10px 2px;
+        transform: perspective(1000px) rotateY(-15deg);
+    }
+
+    .normal-slide h2 {
+        font-size: 2.8rem;
+        text-align: center;
+        word-break: keep-all;
+    }
+
+    .slide-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.2);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: 0.3s;
+    }
+
+    .slide-btn:hover {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .prev {
+        left: 40px;
+    }
+
+    .next {
+        right: 40px;
+    }
+
+    .slider-controls {
+        position: absolute;
+        bottom: 35px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 25px;
+        border-radius: 40px;
+        backdrop-filter: blur(8px);
+    }
+
+    .dot {
+        width: 9px;
+        height: 9px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .dot.active {
+        background: var(--primary);
+        width: 30px;
+        border-radius: 12px;
+    }
+
+    /* --- Main Content --- */
+    main {
+        padding: 4rem 10%;
+    }
+
+    .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 45px;
+    }
+
+    .book-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: 0.4s;
+        border: 1px solid #f2f2f2;
+    }
+
+    .book-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    figure {
+        margin: 0;
+        height: 340px;
+        overflow: hidden;
+        background: #eee;
+    }
+
+    figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .book-info {
+        padding: 25px;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: -80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary);
+        color: white;
+        padding: 18px 45px;
+        border-radius: 60px;
+        transition: 0.5s;
+        z-index: 4000;
+        opacity: 0;
+    }
+
+    .toast.show {
+        bottom: 50px;
+        opacity: 1;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 3000;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background: white;
+        width: 850px;
+        border-radius: 25px;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 25px;
+        right: 30px;
+        font-size: 2rem;
+        color: #ccc;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+    <header>
+        <a href="#" class="logo">BOOKLY</a>
+        <div class="header-center">
+            <input type="text" id="searchInput" class="search-box" placeholder="지금 읽고 싶은 책은?" autocomplete="off">
+            <i class="fas fa-search search-icon"></i>
+            <div id="autocompleteList" class="autocomplete-list"></div>
+        </div>
+        <div class="header-right">
+            <nav style="display:flex; gap:20px; font-weight:500; font-size:0.95rem; color:#666; margin-right:10px;">
+                <a>베스트</a><a>신간</a>
+            </nav>
+            <div style="position: relative;">
+                <button class="cart-status" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span
+                        id="count">0</span></button>
+                <div id="cartPopup" class="cart-popup">
+                    <h4 style="margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">내 장바구니</h4>
+                    <div id="cartItems">담긴 상품이 없습니다.</div>
+                    <button
+                        style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px; margin-top:15px; font-weight:bold;">구매하기</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main style="padding: 0;">
+        <section class="hero-slider">
+            <div class="slider-wrapper" id="slider">
+                <article class="slide" style="background: #fdfcf0;">
+                    <div class="special-slide">
+                        <div class="special-text">
+                            <h2>이달의 도서,<br>인생의 문장을 찾아서</h2>
+                            <p>BOOKLY가 추천하는 최고의 큐레이션</p>
+                        </div>
+                        <div class="special-img-box"><img src="./book.jpg"
+                                onerror="this.src='https://via.placeholder.com'"></div>
+                    </div>
+                </article>
+                <article class="slide normal-slide" style="background: #eef2f3;">
+                    <h2>따뜻한 문장이 필요한 당신에게</h2>
+                </article>
+                <article class="slide normal-slide" style="background: #fff5f5;">
+                    <h2>첫 구매 10% 쿠폰 증정 이벤트</h2>
+                </article>
+                <article class="slide normal-slide" style="background: #e9f7ef;">
+                    <h2>IT/과학 베스트셀러 모음전</h2>
+                </article>
+                <article class="slide normal-slide" style="background: #f4f6f8;">
+                    <h2>함께 읽고 나누는 커뮤니티 오픈</h2>
+                </article>
+            </div>
+            <button class="slide-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button class="slide-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-controls">
+                <div id="dotsContainer" style="display:flex; gap:10px;"></div>
+                <button id="playPauseBtn"><i class="fas fa-pause"></i></button>
+            </div>
+        </section>
+
+        <section style="padding: 4rem 10%;">
+            <h2 id="list-title" style="margin-bottom: 30px;">베스트셀러</h2>
+            <div class="book-grid" id="grid"></div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="modal">
+        <article class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div style="width: 45%; background: #f8f9fa; padding: 40px; display:flex; align-items:center;">
+                <img id="m-img" src="" style="width:100%; border-radius:10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+            </div>
+            <div style="width: 55%; padding: 50px;">
+                <h2 id="m-title" style="margin-top:0; font-size: 2.2rem; line-height:1.3;"></h2>
+                <p id="m-author" style="color:#888; font-size:1.1rem;"></p>
+                <p id="m-desc" style="margin:30px 0; color:#666; line-height: 1.8; font-size:1rem;"></p>
+                <strong id="m-price" style="font-size:2rem; display:block;"></strong>
+                <button id="modalAddBtn"
+                    style="width:100%; background:var(--primary); color:white; padding:20px; border-radius:12px; margin-top:30px; font-weight:bold; font-size:1.1rem;">장바구니
+                    담기</button>
+            </div>
+        </article>
+    </div>
+
+    <div id="toast" class="toast">장바구니에 담았습니다!</div>
+
+    <script>
+        const data = [
+            { id: 1, title: "쉽게 배우는 데이터 과학", author: "김서점", price: "22,000", desc: "데이터 분석의 기초부터 실습까지 비전공자도 쉽게 따라 할 수 있는 가이드북입니다." },
+            { id: 2, title: "철학자의 서재", author: "이철학", price: "16,500", desc: "고전에서 찾는 현대인의 고민에 대한 해답과 위로를 담았습니다." },
+            { id: 3, title: "루틴의 힘", author: "제임스 클리어", price: "18,000", desc: "작은 습관이 모여 위대한 성취를 이루는 과학적 원리." },
+            { id: 4, title: "여름날의 기록", author: "박소설", price: "14,800", desc: "잊고 지냈던 순수함을 일깨워주는 감성 소설입니다." }
+        ];
+
+        let cart = [];
+
+        /* --- [Infinite Slider] --- */
+        const slider = document.getElementById('slider');
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dotsContainer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        let slideCount = slides.length, currentIndex = 1, isTransitioning = false, isPaused = false;
+
+        const firstClone = slides[0].cloneNode(true);
+        const lastClone = slides[slideCount - 1].cloneNode(true);
+        slider.appendChild(firstClone);
+        slider.insertBefore(lastClone, slides[0]);
+
+        slider.style.width = `${(slideCount + 2) * 100}%`;
+        slider.style.transform = `translateX(-${100 / (slideCount + 2)}%)`;
+
+        for (let i = 0; i < slideCount; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => { if (!isTransitioning) { currentIndex = i + 1; moveSlider(); } };
+            dotsContainer.appendChild(dot);
+        }
+
+        function moveSlider() {
+            slider.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            slider.style.transform = `translateX(-${currentIndex * (100 / (slideCount + 2))}%)`;
+        }
+
+        document.getElementById('nextBtn').onclick = () => { if (!isTransitioning) { currentIndex++; moveSlider(); } };
+        document.getElementById('prevBtn').onclick = () => { if (!isTransitioning) { currentIndex--; moveSlider(); } };
+
+        slider.ontransitionend = () => {
+            isTransitioning = false;
+            if (currentIndex === 0) currentIndex = slideCount;
+            else if (currentIndex === slideCount + 1) currentIndex = 1;
+            slider.style.transition = 'none';
+            slider.style.transform = `translateX(-${currentIndex * (100 / (slideCount + 2))}%)`;
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentIndex - 1));
+        };
+        slider.ontransitionstart = () => isTransitioning = true;
+
+        setInterval(() => { if (!isPaused && !isTransitioning) document.getElementById('nextBtn').onclick(); }, 6000);
+        playPauseBtn.onclick = () => { isPaused = !isPaused; playPauseBtn.innerHTML = `<i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>`; };
+
+        /* --- [Search Logic] --- */
+        const searchInput = document.getElementById('searchInput');
+        const autoList = document.getElementById('autocompleteList');
+        const grid = document.getElementById('grid');
+
+        function renderBooks(filteredData) {
+            grid.innerHTML = filteredData.map(b => `
+                <article class="book-card" onclick="openModal(${b.id})">
+                    <figure><img src="./book.jpg" onerror="this.src='https://via.placeholder.com'"></figure>
+                    <div class="book-info">
+                        <h3 style="margin:0 0 10px; font-size:1.15rem; height:3.2rem; overflow:hidden;">${b.title}</h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                            <strong style="font-size:1.2rem;">₩${b.price}</strong>
+                            <button style="background:#f1f3f5; padding:12px; border-radius:50%;" onclick="addFromGrid(event, ${b.id})"><i class="fas fa-cart-plus"></i></button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        searchInput.oninput = (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            if (!val) { autoList.style.display = 'none'; renderBooks(data); return; }
+            const matches = data.filter(b => b.title.toLowerCase().includes(val));
+            autoList.style.display = matches.length ? 'block' : 'none';
+            autoList.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSearch('${m.title}')">${m.title}</div>`).join('');
+        };
+
+        function selectSearch(title) { searchInput.value = title; autoList.style.display = 'none'; renderBooks(data.filter(b => b.title === title)); }
+        renderBooks(data);
+
+        /* --- [Cart Logic] --- */
+        function toggleCart() {
+            const p = document.getElementById('cartPopup');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateCartUI() {
+            document.getElementById('count').innerText = cart.length;
+            const items = document.getElementById('cartItems');
+            items.innerHTML = cart.length === 0 ? "담긴 상품이 없습니다." : cart.map((item, i) => `
+                <div class="cart-item"><span>${item.title}</span><button class="remove-btn" onclick="removeFromCart(${i})">삭제</button></div>
+            `).join('');
+        }
+
+        function addToCart(id) { cart.push(data.find(b => b.id === id)); updateCartUI(); showToast(); }
+        function addFromGrid(e, id) { e.stopPropagation(); addToCart(id); }
+        function removeFromCart(i) { cart.splice(i, 1); updateCartUI(); }
+        function showToast() { const t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+
+        /* --- [Modal Logic] --- */
+        let currentModalId = null;
+        function openModal(id) {
+            currentModalId = id;
+            const b = data.find(i => i.id === id);
+            document.getElementById('m-title').innerText = b.title;
+            document.getElementById('m-author').innerText = b.author;
+            document.getElementById('m-desc').innerText = b.desc;
+            document.getElementById('m-price').innerText = "₩" + b.price;
+            document.getElementById('m-img').src = "./book.jpg";
+            document.getElementById('modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        document.getElementById('modalAddBtn').onclick = () => { addToCart(currentModalId); closeModal(); };
+        window.onclick = (e) => { if (e.target.id === 'modal') closeModal(); }
+    </script>
+</body>
+
+</html>
