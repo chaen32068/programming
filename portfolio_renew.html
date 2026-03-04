@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaenny Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fff;
+            color: #000;
+            font-family: 'Pretendard', sans-serif;
+            line-height: 1.5;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        h2 {
+            font-size: 40px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+        }
+
+        /* 필터 탭 */
+        .filter_tab {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .filter_tab button {
+            padding: 10px 20px;
+            border: 1px solid #000;
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        .filter_tab button.active,
+        .filter_tab button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        /* 그리드 레이아웃 - 덜컹거림 방지 */
+        .port_list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .item {
+            position: relative;
+            border: 1px solid #eee;
+            overflow: hidden;
+            background: #fff;
+            transition: border-color 0.3s;
+        }
+
+        .item:hover {
+            border-color: #000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 이미지 영역 */
+        figure {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background: #f4f4f4;
+        }
+
+        figure img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s ease;
+        }
+
+        .item:hover figure img {
+            transform: scale(1.05);
+        }
+
+        /* 호버 오버레이 */
+        .hover_info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: 0.3s;
+            padding: 20px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .item:hover .hover_info {
+            opacity: 1;
+        }
+
+        .hover_info h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .hover_info p {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        /* 하단 텍스트 */
+        .txt_box {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+
+        .txt_box strong {
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+
+        .percent {
+            font-size: 10px;
+            font-weight: 800;
+            border: 1.5px solid #000;
+            padding: 2px 6px;
+        }
+
+        /* 필터 숨김 */
+        .item.hide {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="inner">
+        <h2>Portfolio</h2>
+
+        <div class="filter_tab">
+            <button class="filter-btn active" data-filter="all">ALL</button>
+            <button class="filter-btn" data-filter="build">구축(8)</button>
+            <button class="filter-btn" data-filter="oper">운영(7)</button>
+            <button class="filter-btn" data-filter="ggi">지지옥션(8)</button>
+            <button class="filter-btn" data-filter="gilink">지아이링크(5)</button>
+            <button class="filter-btn" data-filter="personal">개인(10)</button>
+        </div>
+
+        <ul class="port_list">
+            <!-- [1. 구축 프로젝트 - 8개] -->
+            <li class="item build"><a href="https://web.paybooc.co.kr" target="_blank">
+                    <figure><img src="images/bc_paybook_mo.png"></figure>
+                    <div class="hover_info">
+                        <h4>비씨카드 페이북</h4>
+                        <p>반응형 / 리뉴얼</p>
+                    </div>
+                    <div class="txt_box"><strong>비씨카드 페이북</strong><span class="percent">80%</span></div>
+                </a></li>
+            <li class="item build"><a href="https://www.samsungsdi.co.kr" target="_blank">
+                    <figure><img src="images/sdi.png"></figure>
+                    <div class="hover_info">
+                        <h4>SAMSUNG SDI</h4>
+                        <p>반응형 / 리뉴얼</p>
+                    </div>
+                    <div class="txt_box"><strong>SAMSUNG SDI</strong><span class="percent">80%</span></div>
+                </a></li>
+            <!-- ... 구축 나머지 6개 추가 ... -->
+
+            <!-- [2. 운영 프로젝트 - 7개] -->
+            <li class="item oper"><a href="https://www.lge.co.kr" target="_blank">
+                    <figure><img src="images/lg.png"></figure>
+                    <div class="hover_info">
+                        <h4>LG전자</h4>
+                        <p>반응형 운영</p>
+                    </div>
+                    <div class="txt_box"><strong>LG전자</strong><span class="percent">100%</span></div>
+                </a></li>
+            <!-- ... 운영 나머지 6개 추가 ... -->
+
+            <!-- [3. 지지옥션 - 8개] -->
+            <li class="item ggi"><a href="http://m.ggi.co.kr" target="_blank">
+                    <figure><img src="images/ggi_mo.png"></figure>
+                    <div class="hover_info">
+                        <h4>지지옥션 모바일</h4>
+                        <p>리뉴얼</p>
+                    </div>
+                    <div class="txt_box"><strong>지지옥션 모바일</strong><span class="percent">100%</span></div>
+                </a></li>
+            <li class="item ggi"><a href="http://www.gghotel.co.kr" target="_blank">
+                    <figure><img src="images/gghotel.png"></figure>
+                    <div class="hover_info">
+                        <h4>지지호텔</h4>
+                        <p>운영</p>
+                    </div>
+                    <div class="txt_box"><strong>지지호텔</strong><span class="percent">100%</span></div>
+                </a></li>
+            <!-- ... 지지옥션 나머지 6개 추가 ... -->
+
+            <!-- [4. 지아이링크 - 5개] -->
+            <li class="item gilink"><a href="https://korea-wifi.net" target="_blank">
+                    <figure><img src="images/koreawifi.png"></figure>
+                    <div class="hover_info">
+                        <h4>코리아와이파이</h4>
+                        <p>운영</p>
+                    </div>
+                    <div class="txt_box"><strong>코리아와이파이</strong><span class="percent">100%</span></div>
+                </a></li>
+            <!-- ... 지아이링크 나머지 4개 추가 ... -->
+
+            <!-- [5. 개인 프로젝트 - 10개] -->
+            <li class="item personal"><a href="https://chaen32068.github.io" target="_blank">
+                    <figure><img src="images/starbucks.png"></figure>
+                    <div class="hover_info">
+                        <h4>Starbucks</h4>
+                        <p>클론코딩</p>
+                    </div>
+                    <div class="txt_box"><strong>Starbucks</strong><span class="percent">100%</span></div>
+                </a></li>
+            <li class="item personal"><a href="https://chaen32068.github.io" target="_blank">
+                    <figure><img src="images/motion_svg_slide.png"></figure>
+                    <div class="hover_info">
+                        <h4>Svg slide</h4>
+                        <p>모션</p>
+                    </div>
+                    <div class="txt_box"><strong>Svg slide</strong><span class="percent">100%</span></div>
+                </a></li>
+            <!-- ... 개인 나머지 8개 추가 ... -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btns = document.querySelectorAll('.filter-btn');
+            const items = document.querySelectorAll('.item');
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.dataset.filter;
+                    items.forEach(item => {
+                        if (filter === 'all' || item.classList.contains(filter)) {
+                            item.classList.remove('hide');
+                        } else {
+                            item.classList.add('hide');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

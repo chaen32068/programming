@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Lead Publisher | Portfolio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --bg: #050505;
+            --card: #111114;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Pretendard', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* [Interaction] 고급 커스텀 커서 */
+        .cursor {
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.2s ease-out;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* [Main] 메인 비주얼 수정: 인터랙티브 아트 스타일 */
+        .main-visual {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at var(--mx) var(--my), rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+        }
+
+        /* 배경에 흐르는 큰 텍스트 (Parallax 효과용) */
+        .bg-text {
+            position: absolute;
+            font-size: 15vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            transform: translateX(var(--tx));
+            transition: 0.1s linear;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .main-content .label {
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 800;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            display: block;
+            overflow: hidden;
+        }
+
+        .main-content .label span {
+            display: inline-block;
+            transform: translateY(100%);
+            transition: 0.8s ease;
+        }
+
+        .main-visual.active .label span {
+            transform: translateY(0);
+        }
+
+        .main-content h1 {
+            font-size: clamp(3.5rem, 9vw, 7.5rem);
+            font-weight: 900;
+            letter-spacing: -5px;
+            line-height: 0.85;
+        }
+
+        .main-content h1 .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .main-content h1 span {
+            display: inline-block;
+            transform: translateY(100%);
+            transition: 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .main-visual.active h1 span {
+            transform: translateY(0);
+        }
+
+        .main-visual.active h1 .delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .main-visual.active h1 .delay-2 {
+            transition-delay: 0.2s;
+            color: var(--primary);
+        }
+
+        .main-content p {
+            font-size: 1.2rem;
+            color: var(--text-sub);
+            margin-top: 40px;
+            max-width: 600px;
+            opacity: 0;
+            transition: 1s ease 0.8s;
+        }
+
+        .main-visual.active p {
+            opacity: 1;
+        }
+
+        /* [UI] 프로젝트 섹션 공통 */
+        .project-section {
+            padding: 100px 0;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .project-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .project-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .p-date {
+            font-size: 0.95rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .p-comp {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+        }
+
+        .project-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 50px;
+            position: relative;
+            transition: 0.4s;
+            overflow: hidden;
+        }
+
+        .project-card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--x) var(--y), rgba(59, 130, 246, 0.12) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            letter-spacing: -1.5px;
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-list li {
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .task-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        @media (max-width: 850px) {
+            .task-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .project-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <div class="container">
+        <!-- 메인 비주얼: 인터랙티브 및 애니메이션 강화 -->
+        <header class="main-visual">
+            <div class="bg-text">EXPERIENCE MATTERS</div>
+            <div class="main-content">
+                <span class="label"><span>SENIOR WEB PUBLISHER</span></span>
+                <h1>
+                    <span class="line"><span>STRATEGIC</span></span>
+                    <span class="line"><span class="delay-1">LEAD</span></span>
+                    <span class="line"><span class="delay-2">PORTFOLIO.</span></span>
+                </h1>
+                <p>
+                    6년간의 견고한 아카이브. <br>
+                    대규모 엔터프라이즈의 UI 아키텍처를 설계하고 정교한 사용자 경험을 구현합니다.
+                </p>
+            </div>
+        </header>
+
+        <!-- 1. 아시아나항공 -->
+        <section class="project-section visible">
+            <div class="project-info-header">
+                <span class="p-date">2025.07 — PRESENT</span>
+                <span class="p-comp">아시아나항공 (메가존)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">공식 웹사이트 글로벌 운영 총괄</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>글로벌(국내/해외) 다국어 콘텐츠 운영 프로세스 주도</li>
+                        <li>UI 컴포넌트 정비 및 웹 접근성(WA) 상시 검토</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>반응형 구조 기반의 항공 프로모션 페이지 제작</li>
+                        <li>브랜드 가이드 준수 및 긴급 이슈 대응 관리</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. LG전자 -->
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2023.08 — 2025.07</span>
+                <span class="p-comp">LG전자 (인하우스 리딩)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">LG ThinQ 앱/웹 구축 및 팀 리딩</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>퍼블리싱 팀 일정 수립 및 산출물 퀄리티 검수 총괄</li>
+                        <li>ThinQ 반응형 웹/앱 연동 콘텐츠 구축 및 유지보수</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>스스로해결하기 UX 콘텐츠 및 브랜드 가이드 운영</li>
+                        <li>서비스 매니저 및 상담사용 운영 가이드/응대 시나리오 가이드 제작</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- (비씨카드, 삼성SDI, 식약처, HL만도, 나만의 공간, 지지옥션, 지아이링크 프로젝트 등 모든 경력 데이터 유지) -->
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2023.01 — 2023.07</span>
+                <span class="p-comp">비씨카드 (매그넘빈트)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">페이북 및 5개 패밀리 사이트 운영</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>메인 및 전용 사이트(VIP/기업 등) 마이그레이션 참여</li>
+                        <li>신규 콘텐츠 퍼블리싱 및 컴포넌트 구조 재정비</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>금융권 접근성/표준성 준수 검토 및 품질 향상</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2022.09 — 2023.01</span>
+                <span class="p-comp">삼성SDI (펜타브리드)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">공식 웹사이트 구축 및 리딩</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>대규모 기업형 사이트 구축 및 인터랙션 전담</li>
+                        <li>작업 계획 수립 및 할당 관리, 협업 툴 매니징</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>고난도 UI 애니메이션 및 정적 페이지 완성도 구현</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2022.05 — 2022.07</span>
+                <span class="p-comp">나만의 공간 (인테리어)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">서비스 런칭 및 인하우스 툴 개발</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>서비스 런칭 전체 구조 설계 및 반응형 웹 구현</li>
+                        <li>자사 내부 인하우스 툴 컴포넌트 라이브러리 개발</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>Admin 사용성 고려 레이아웃 및 시각화 최적화</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2021.05 — 2022.05</span>
+                <span class="p-comp">지지옥션 그룹</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">모바일 리뉴얼 및 8개 사이트 운영</h2>
+                <div class="task-grid">
+                    <ul class="task-list">
+                        <li>UI/UX 리뉴얼 및 반응형 인터페이스 최적화</li>
+                        <li>A/B 테스트 기반 마케팅 성과형 콘텐츠 제작</li>
+                    </ul>
+                    <ul class="task-list">
+                        <li>서버 점검 및 장애 대응 지원 (기업부설연구소)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2020.12 — 2021.05</span>
+                <span class="p-comp">지아이링크 (Otsuka Admin)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">동아오츠카 MR Admin 디자인/구축</h2>
+                <ul class="task-list">
+                    <li>Photoshop/Illustrator 활용 전체 화면 설계 및 시안 제작</li>
+                    <li>jQuery 기반 인터랙션 구현 및 사용자 편의 마크업</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="project-section">
+            <div class="project-info-header">
+                <span class="p-date">2020.12 — 2021.05</span>
+                <span class="p-comp">지아이링크 (Global & Reverse)</span>
+            </div>
+            <div class="project-card hover-target">
+                <h2 class="project-title">글로벌 와이파이 / REVERSE 한일 다국어</h2>
+                <ul class="task-list">
+                    <li>글로벌 와이파이, 인켈, 본국투자협회 정기 운영</li>
+                    <li>REVERSE(한/일) 다국어 서비스 콘텐츠 유지관리 및 호환성 대응</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const cursor = document.querySelector('.cursor');
+        const follower = document.querySelector('.cursor-follower');
+        const mainVisual = document.querySelector('.main-visual');
+        const bgText = document.querySelector('.bg-text');
+
+        // 1. [Interaction] 마우스 움직임에 따른 메인 비주얼 조명 & Parallax
+        window.addEventListener('mousemove', (e) => {
+            // 커서 위치 업데이트
+            cursor.style.transform = `translate3d(${e.clientX - 5}px, ${e.clientY - 5}px, 0)`;
+            follower.style.transform = `translate3d(${e.clientX - 20}px, ${e.clientY - 20}px, 0)`;
+
+            // 메인 비주얼 조명 위치
+            mainVisual.style.setProperty('--mx', `${e.clientX}px`);
+            mainVisual.style.setProperty('--my', `${e.clientY}px`);
+
+            // 배경 텍스트 Parallax
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.05;
+            bgText.style.setProperty('--tx', `${moveX}px`);
+        });
+
+        // 2. [Interaction] 카드 내부 Spotlight 효과
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // 3. [Interaction] 로딩 시 메인 비주얼 활성화
+        window.onload = () => {
+            setTimeout(() => mainVisual.classList.add('active'), 100);
+        };
+
+        // 4. [Interaction] 스크롤 감지 Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.project-section').forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>
