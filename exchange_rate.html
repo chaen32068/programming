@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 환율 변환기</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .converter-card {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .swap-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .swap-btn:active {
+            transform: scale(0.9) rotate(180deg);
+        }
+
+        .result-area {
+            margin-top: 1.5rem;
+            text-align: center;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 18px;
+        }
+
+        #result-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .rate-info {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* 모바일 반응형 처리 */
+        @media (max-width: 480px) {
+            .converter-card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            #result-text {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="converter-card">
+        <h1>💰 실시간 환율기</h1>
+
+        <div class="input-group">
+            <label>변환할 금액</label>
+            <input type="number" id="amount" value="1" min="0" step="any">
+        </div>
+
+        <div class="input-group">
+            <label>보내는 통화</label>
+            <select id="from-currency">
+                <option value="KRW" selected>KRW - 원</option>
+                <option value="USD">USD - 달러</option>
+                <option value="JPY">JPY - 엔</option>
+                <option value="EUR">EUR - 유로</option>
+            </select>
+        </div>
+
+        <button class="swap-btn" id="swap">⇅</button>
+
+        <div class="input-group">
+            <label>받는 통화</label>
+            <select id="to-currency">
+                <option value="USD" selected>USD - 달러</option>
+                <option value="KRW">KRW - 원</option>
+                <option value="JPY">JPY - 엔</option>
+                <option value="EUR">EUR - 유로</option>
+            </select>
+        </div>
+
+        <div class="result-area">
+            <div id="result-text">계산 중...</div>
+            <div class="rate-info" id="rate-info">환율 데이터를 불러오는 중...</div>
+        </div>
+    </div>
+
+    <script>
+        const amountInput = document.getElementById('amount');
+        const fromSelect = document.getElementById('from-currency');
+        const toSelect = document.getElementById('to-currency');
+        const swapBtn = document.getElementById('swap');
+        const resultText = document.getElementById('result-text');
+        const rateInfo = document.getElementById('rate-info');
+
+        async function convert() {
+            const amount = amountInput.value || 0;
+            const from = fromSelect.value;
+            const to = toSelect.value;
+
+            if (from === to) {
+                resultText.innerText = `${parseFloat(amount).toLocaleString()} ${to}`;
+                rateInfo.innerText = `1 ${from} = 1 ${to}`;
+                return;
+            }
+
+            // 백업용을 포함한 2개의 API 주소
+            const hosts = ['api.frankfurter.app', 'api.frankfurter.dev'];
+            let success = false;
+
+            for (const host of hosts) {
+                try {
+                    const res = await fetch(`https://${host}/latest?amount=${amount}&from=${from}&to=${to}`);
+                    if (!res.ok) continue;
+
+                    const data = await res.json();
+                    const converted = data.rates[to].toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+                    resultText.innerText = `${converted} ${to}`;
+                    rateInfo.innerText = `1 ${from} = ${(data.rates[to] / amount).toFixed(4)} ${to}`;
+                    success = true;
+                    break;
+                } catch (e) {
+                    console.error(`${host} 연결 실패, 다음 서버 시도...`);
+                }
+            }
+
+            if (!success) {
+                resultText.innerText = "연결 지연";
+                rateInfo.innerText = "서버 응답이 없습니다. 잠시 후 재시도하세요.";
+            }
+        }
+
+        // 스왑 버튼
+        swapBtn.addEventListener('click', () => {
+            const temp = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = temp;
+            convert();
+        });
+
+        // 입력 감지
+        [amountInput, fromSelect, toSelect].forEach(el => {
+            el.addEventListener('input', convert);
+        });
+
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', convert);
+    </script>
+</body>
+
+</html>
