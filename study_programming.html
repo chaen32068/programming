@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML 속성 & 텍스트 마스터 가이드</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --code-bg: #1e1e1e; --border: #e2e8f0; }
+        body { font-family: 'Pretendard', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden; }
+        
+        /* 사이드바 */
+        nav { width: 320px; background: #fff; border-right: 1px solid var(--border); padding: 25px; overflow-y: auto; flex-shrink: 0; }
+        nav h2 { font-size: 1.2rem; color: var(--primary); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f1f5f9; }
+        .nav-item { padding: 12px; margin-bottom: 6px; border-radius: 10px; cursor: pointer; color: #64748b; font-size: 0.9rem; transition: 0.2s; }
+        .nav-item:hover { background: #f8fafc; }
+        .nav-item.active { background: #eff6ff; color: var(--primary); font-weight: 700; border: 1px solid #bfdbfe; }
+
+        /* 메인 학습 영역 */
+        .content-container { flex: 1; display: grid; grid-template-columns: 1.2fr 1fr; height: 100%; }
+        
+        /* 왼쪽: 상세 가이드 */
+        .theory-panel { padding: 40px; overflow-y: auto; background: #fff; border-right: 1px solid var(--border); }
+        .section { display: none; }
+        .section.active { display: block; }
+        h1 { font-size: 1.8rem; color: #0f172a; margin-bottom: 20px; }
+        h3 { font-size: 1.2rem; color: var(--primary); margin-top: 25px; border-left: 4px solid var(--primary); padding-left: 10px; }
+        .desc { color: #475569; line-height: 1.8; margin-bottom: 25px; font-size: 1rem; }
+        
+        /* 속성 리스트 스타일 */
+        .attr-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 18px; margin-bottom: 12px; border-radius: 10px; }
+        .attr-card b { color: #e11d48; font-family: 'Consolas', monospace; font-size: 1.05rem; }
+        .attr-card span { font-size: 0.9rem; color: #64748b; display: block; margin-top: 6px; line-height: 1.5; }
+
+        /* 오른쪽: 실시간 에디터 */
+        .try-panel { display: flex; flex-direction: column; background: #f1f5f9; }
+        .panel-label { padding: 12px 20px; background: #e2e8f0; font-weight: bold; font-size: 0.8rem; color: #475569; border-bottom: 1px solid #cbd5e1; }
+        textarea { flex: 1.5; background: var(--code-bg); color: #d4d4d4; padding: 25px; font-family: 'Consolas', monospace; font-size: 14px; border: none; outline: none; resize: none; line-height: 1.7; }
+        #preview { flex: 1; background: white; padding: 30px; overflow-y: auto; border-top: 6px solid #cbd5e1; }
+        
+        .tip-box { background: #fff9db; border-left: 5px solid #fcc419; padding: 20px; border-radius: 8px; margin-top: 30px; color: #856404; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h2>📖 HTML 완독 가이드</h2>
+    <div class="nav-item active" onclick="loadStep(1)">01. 시맨틱 (구조의 의미)</div>
+    <div class="nav-item" onclick="loadStep(2)">02. 텍스트 위계와 속성</div>
+    <div class="nav-item" onclick="loadStep(3)">03. 링크(a)의 모든 기능</div>
+    <div class="nav-item" onclick="loadStep(4)">04. 이미지와 대체 텍스트</div>
+    <div class="nav-item" onclick="loadStep(5)">05. 비디오/오디오 심화</div>
+    <div class="nav-item" onclick="loadStep(6)">06. 디스플레이 (Block/Inline)</div>
+    <div class="nav-item" onclick="loadStep(7)">07. 리스트와 표 (Data)</div>
+    <div class="nav-item" onclick="loadStep(8)">08. 입력 양식과 버튼</div>
+    <div class="nav-item" onclick="loadStep(9)">09. 폼 속성 (Required/Value)</div>
+    <div class="nav-item" onclick="loadStep(10)">10. SEO와 메타 태그</div>
+</nav>
+
+<div class="content-container">
+    <div class="theory-panel">
+        <!-- 02. 텍스트 위계 (h1~h6, p, span 등) -->
+        <div id="desc2" class="section">
+            <h1>02. 텍스트 위계와 서식 속성</h1>
+            <p class="desc">텍스트 태그는 단순히 글자를 보여주는 것이 아니라, 문서의 **'중요도'**를 결정합니다.</p>
+            <h3>제목 태그 (Heading)</h3>
+            <div class="attr-card"><b>&lt;h1&gt; ~ &lt;h6&gt;</b><span>숫자가 작을수록 중요한 제목이며, 검색 로봇은 h1을 보고 페이지 주제를 파악합니다.</span></div>
+            <h3>본문 강조 태그</h3>
+            <div class="attr-card"><b>&lt;p&gt;</b><span>Paragraph의 약자로, 하나의 문단을 만듭니다. (Block 요소)</span></div>
+            <div class="attr-card"><b>&lt;strong&gt; / &lt;b&gt;</b><span>굵은 글씨. strong은 '중요한 의미'를 담고, b는 '시각적'으로만 굵게 만듭니다.</span></div>
+            <div class="attr-card"><b>&lt;em&gt; / &lt;i&gt;</b><span>기울임꼴. em은 '강조된 의미', i는 '단순 기울임'입니다.</span></div>
+            <div class="attr-card"><b>&lt;mark&gt;</b><span>형광펜 효과(하이라이트)를 줍니다.</span></div>
+        </div>
+
+        <!-- 03. a 태그 심화 -->
+        <div id="desc3" class="section">
+            <h1>03. 링크(&lt;a&gt;)의 무궁무진한 속성</h1>
+            <p class="desc">링크 태그는 웹사이트 이동뿐만 아니라 이메일, 전화, 파일 다운로드까지 담당합니다.</p>
+            <div class="attr-card"><b>href="주소"</b><span>연결할 목표 주소입니다.</span></div>
+            <div class="attr-card"><b>href="mailto:이메일"</b><span>클릭 시 사용자의 메일 앱이 열리며 주소가 자동 입력됩니다.</span></div>
+            <div class="attr-card"><b>href="tel:전화번호"</b><span>모바일에서 클릭 시 바로 전화를 겁니다.</span></div>
+            <div class="attr-card"><b>target="_blank"</b><span>새 탭에서 링크를 엽니다. (생략 시 현재 탭에서 이동)</span></div>
+            <div class="attr-card"><b>download</b><span>이동하지 않고 링크된 파일을 바로 저장합니다.</span></div>
+        </div>
+
+        <!-- 01. 시맨틱 (복구) -->
+        <div id="desc1" class="section active">
+            <h1>01. 시맨틱 레이아웃</h1>
+            <p class="desc">의미가 있는 태그를 써야 구글이 우리 사이트를 좋아합니다.</p>
+            <div class="attr-card"><b>&lt;header&gt;</b><span>상단(로고, 메뉴)</span></div>
+            <div class="attr-card"><b>&lt;nav&gt;</b><span>주요 링크(메뉴바)</span></div>
+            <div class="attr-card"><b>&lt;main&gt;</b><span>가장 중요한 본문</span></div>
+            <div class="attr-card"><b>&lt;footer&gt;</b><span>하단 정보(저작권)</span></div>
+        </div>
+        
+        <!-- 단계별 설명이 이어짐 (4~10 생략 방지) -->
+        <div id="desc4" class="section"><h1>04. 이미지 속성</h1><p class="desc">src(주소), alt(대체 텍스트), loading(성능) 등을 배웁니다.</p></div>
+        <div id="desc6" class="section"><h1>06. Display 원리</h1><p class="desc">Block, Inline, Inline-Block의 차이를 시각적으로 확인합니다.</p></div>
+    </div>
+
+    <div class="try-panel">
+        <div class="panel-label">EDITOR (실시간 실습창)</div>
+        <textarea id="codeEditor" spellcheck="false" oninput="updatePreview()"></textarea>
+        <div class="panel-label">PREVIEW (브라우저 결과물)</div>
+        <div id="preview"></div>
+    </div>
+</div>
+
+<script>
+    const stepCodes = {
+        1: `<header style="border-bottom:2px solid #333;">\n  <h1>My World</h1>\n  <nav>Home | Products | Contact</nav>\n</header>\n<main>\n  <p>이곳이 핵심 본문 영역입니다.</p>\n</main>`,
+        2: `<h1>대제목 (h1)</h1>\n<h3>소제목 (h3)</h3>\n<p>일반 문단에 <mark>형광펜</mark>을 칠하거나\n<strong>매우 중요</strong>함을 표시할 수 있습니다.</p>\n<p><i>단순 기울임</i>과 <em>의미상 강조</em>의 차이!</p>`,
+        3: `<!-- 1. 외부 링크 (새창) -->\n<a href="https://google.com" target="_blank">구글 새창열기</a>\n\n<br><br>\n\n<!-- 2. 이메일 보내기 -->\n<a href="mailto:test@example.com">개발자에게 이메일 보내기</a>\n\n<br><br>\n\n<!-- 3. 전화 걸기 (모바일 전용) -->\n<a href="tel:010-1234-5678">고객센터 전화하기</a>`,
+        4: `<img src="https://via.placeholder.com" alt="샘플 이미지" title="마우스를 올리면 보여요">\n<p>src 속성은 경로, alt는 설명입니다.</p>`,
+        5: `<video controls width="100%" poster="https://via.placeholder.com">\n  <source src="http://commondatastorage.googleapis.com" type="video/mp4">\n</video>`,
+        6: `<div style="background:coral; padding:10px;">저는 Block이라 한 줄을 다 써요.</div>\n<span style="background:yellow;">저는 Inline이라 딱 요만큼만!</span>\n<button style="width:100px; height:50px;">Inline-Block</button>`,
+        7: `<ul><li>점 목록</li></ul>\n<table border="1"><tr><td>표 데이터</td></tr></table>`,
+        8: `<input type="text" placeholder="아이디 입력">\n<button type="button">로그인</button>`,
+        9: `<input type="checkbox" checked> 약관 동의(기본체크)\n<br>\n<input type="text" value="수정 불가" readonly>\n<br>\n<input type="text" required placeholder="필수 입력창">`,
+        10: `<h3>head 내부에 들어가는 정보</h3>\n<p>&lt;title&gt;, &lt;meta&gt; 태그 등</p>`
+    };
+
+    function loadStep(num) {
+        document.querySelectorAll('.nav-item').forEach((item, idx) => item.classList.toggle('active', idx + 1 === num));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        if(document.getElementById('desc'+num)) document.getElementById('desc'+num).classList.add('active');
+        document.getElementById('codeEditor').value = stepCodes[num] || "";
+        updatePreview();
+    }
+
+    function updatePreview() {
+        document.getElementById('preview').innerHTML = document.getElementById('codeEditor').value;
+    }
+
+    window.onload = () => loadStep(1);
+</script>
+
+</body>
+</html>
