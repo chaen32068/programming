@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskHarbor - Premium Edition</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net');
+
+        :root {
+            --bg-body: #f8f9fa; --sidebar-bg: #1a1c23; --card-bg: #ffffff;
+            --primary: #6366f1; --primary-light: #eef2ff; --border: #e5e7eb;
+            --text-main: #1f2937; --text-muted: #6b7280;
+            --radius-lg: 16px; --radius-md: 10px;
+            --tag-design: #ffedd5; --tag-design-txt: #9a3412;
+            --tag-pub: #fef9c3; --tag-pub-txt: #854d0e;
+            --tag-dev: #dcfce7; --tag-dev-txt: #166534;
+            --tag-etc: #f3f4f6; --tag-etc-txt: #374151;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { background-color: var(--bg-body); display: flex; height: 100vh; color: var(--text-main); overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: var(--sidebar-bg); color: #9ca3af; padding: 32px 16px; display: flex; flex-direction: column; }
+        .logo { font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 40px; padding-left: 12px; }
+        .nav-item { padding: 12px 16px; margin-bottom: 4px; border-radius: var(--radius-md); cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item:hover:not(.active) { color: white; background: rgba(255,255,255,0.05); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 48px; overflow-y: auto; display: none; }
+        .main-content.active { display: block; }
+        header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; }
+
+        /* Board Layout */
+        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .column { min-height: 600px; display: flex; flex-direction: column; }
+        .column-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+        .column-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .add-task-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; }
+
+        /* Task Card */
+        .task-card { background: var(--card-bg); padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); cursor: pointer; transition: 0.2s; }
+        .task-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .task-card p { font-size: 0.95rem; font-weight: 500; margin-bottom: 12px; }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; }
+        .d-day { font-size: 0.7rem; font-weight: 700; color: #ef4444; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+        .d-day.expired { color: var(--text-muted); background: #f3f4f6; }
+        
+        .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+        .design { background: var(--tag-design); color: var(--tag-design-txt); } 
+        .pub { background: var(--tag-pub); color: var(--tag-pub-txt); } 
+        .dev { background: var(--tag-dev); color: var(--tag-dev-txt); } 
+        .etc { background: var(--tag-etc); color: var(--tag-etc-txt); }
+
+        /* Custom Selector for Calendar & Modal */
+        .custom-select-box { position: relative; display: inline-block; width: 100%; margin-bottom: 12px; }
+        .select-trigger { 
+            background: #fff; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); 
+            cursor: pointer; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .dropdown-panel {
+            position: absolute; top: 100%; left: 0; width: 100%; background: white; border: 1px solid var(--border);
+            border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 8px; display: none; z-index: 1000;
+        }
+        .dropdown-panel.show { display: block; }
+        .opt { padding: 10px 16px; cursor: pointer; font-size: 0.85rem; }
+        .opt:hover { background: var(--primary-light); color: var(--primary); }
+
+        /* Custom Date Picker (Modal) */
+        .picker-container { padding: 16px; width: 280px; }
+        .picker-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: bold; }
+        .picker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .p-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; border-radius: 6px; }
+        .p-cell:hover:not(.p-head) { background: var(--primary-light); color: var(--primary); }
+        .p-cell.selected { background: var(--primary); color: white; }
+        .p-cell.p-head { font-weight: 600; color: var(--text-muted); cursor: default; }
+
+        /* Calendar Grid */
+        .calendar-container { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 24px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .cal-header-day { text-align: center; font-size: 0.75rem; font-weight: 600; padding: 12px; background: #f9fafb; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        .cal-day { min-height: 110px; padding: 8px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: white; font-size: 0.85rem; }
+        .cal-day.today { background: var(--primary-light); font-weight: bold; color: var(--primary); }
+        .cal-event { font-size: 11px; padding: 3px 6px; border-radius: 4px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .cal-event.design { background: var(--tag-design); color: var(--tag-design-txt); }
+        .cal-event.pub { background: var(--tag-pub); color: var(--tag-pub-txt); }
+        .cal-event.dev { background: var(--tag-dev); color: var(--tag-dev-txt); }
+        .cal-event.etc { background: var(--tag-etc); color: var(--tag-etc-txt); }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal { background: white; width: 420px; padding: 32px; border-radius: var(--radius-lg); position: relative; }
+        .modal input, .modal select, .modal textarea { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 12px; outline: none; font-size: 0.9rem; }
+        .btn-confirm { background: var(--primary); color: white; padding: 14px; border: none; border-radius: var(--radius-md); cursor: pointer; width: 100%; font-weight: 600; }
+        .btn-delete { background: #fee2e2; color: #b91c1c; border: none; padding: 10px; margin-top: 8px; cursor: pointer; border-radius: var(--radius-md); width: 100%; font-weight: 600; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">⚓ TaskHarbor</div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="showPage('board-page')">Dashboard</li>
+            <li class="nav-item" onclick="showPage('stats-page')">Statistics</li>
+            <li class="nav-item" onclick="showPage('calendar-page')">Calendar</li>
+        </ul>
+    </nav>
+
+    <!-- 보드 페이지 -->
+    <main id="board-page" class="main-content active">
+        <header><h1>Projects Board</h1></header>
+        <div class="board">
+            <div class="column" id="col-todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="column-header"><span class="column-title">To Do <span class="count">0</span></span><button class="add-task-btn" onclick="openAddModal()">+</button></div>
+                <div class="task-list"></div>
+            </div>
+            <div class="column" id="col-doing" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="column-header"><span class="column-title">In Progress <span class="count">0</span></span></div>
+                <div class="task-list"></div>
+            </div>
+            <div class="column" id="col-done" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div class="column-header"><span class="column-title">Completed <span class="count">0</span></span></div>
+                <div class="task-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 통계 페이지 -->
+    <main id="stats-page" class="main-content">
+        <header><h1>Statistics</h1></header>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; margin-bottom:32px;">
+            <div style="background:white; padding:24px; border-radius:16px; border:1px solid #eee;"><h3>Total Tasks</h3><div id="stat-total" style="font-size:2rem; font-weight:800;">0</div></div>
+            <div style="background:white; padding:24px; border-radius:16px; border:1px solid #eee;"><h3>Completion</h3><div id="stat-percent" style="font-size:2rem; font-weight:800; color:var(--primary);">0%</div></div>
+        </div>
+        <div style="padding:24px; background:white; border-radius:16px; border:1px solid #eee;">
+            <div style="height:10px; background:#eee; border-radius:5px; overflow:hidden;"><div id="progress-fill" style="height:100%; background:var(--primary); width:0%; transition:0.5s;"></div></div>
+        </div>
+    </main>
+
+    <!-- 캘린더 페이지 -->
+    <main id="calendar-page" class="main-content">
+        <header><h1>Calendar</h1></header>
+        <div class="calendar-container">
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div class="custom-select-box" style="width:120px;">
+                    <div class="select-trigger" onclick="toggleDrop('yDrop')"><span id="yTxt">2026</span> ▾</div>
+                    <div class="dropdown-panel" id="yDrop" style="max-height:200px; overflow-y:auto;"></div>
+                </div>
+                <div class="custom-select-box" style="width:100px;">
+                    <div class="select-trigger" onclick="toggleDrop('mDrop')"><span id="mTxt">3</span> ▾</div>
+                    <div class="dropdown-panel" id="mDrop"></div>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+    </main>
+
+    <!-- 작업 상세 모달 -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <h3>Task Details</h3>
+            <input type="text" id="taskTitle" placeholder="제목">
+            <div class="custom-select-box">
+                <div class="select-trigger" onclick="toggleDrop('datePicker')"><span id="dateVal">마감 날짜 선택 📅</span></div>
+                <div class="dropdown-panel" id="datePicker" style="width:280px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <button onclick="event.stopPropagation(); changePM(-1)" style="border:none; background:none; cursor:pointer; color:var(--primary); font-weight:bold;">◀</button>
+                        <span id="pTitle" style="font-weight:bold;"></span>
+                        <button onclick="event.stopPropagation(); changePM(1)" style="border:none; background:none; cursor:pointer; color:var(--primary); font-weight:bold;">▶</button>
+                    </div>
+                    <div class="picker-grid" id="pGrid"></div>
+                </div>
+            </div>
+            <select id="taskTag"><option value="design">디자인</option><option value="pub">퍼블</option><option value="dev">개발</option><option value="etc">기타</option></select>
+            <textarea id="taskMemo" placeholder="상세 메모" style="height:100px; resize:none;"></textarea>
+            <button class="btn-confirm" onclick="submitTask()">Save</button>
+            <button class="btn-delete" id="btnDelete" onclick="deleteTask()">Delete</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; margin-top:12px; cursor:pointer; color:var(--text-muted);">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let activeId = null, cY = 2026, cM = 2, pY = 2026, pM = 2, selD = "";
+
+        window.onload = () => {
+            const yD = document.getElementById('yDrop'), mD = document.getElementById('mDrop');
+            for(let y=2024; y<=2030; y++) yD.innerHTML += `<div class="opt" onclick="selNav('y',${y})">${y}</div>`;
+            for(let m=0; m<12; m++) mD.innerHTML += `<div class="opt" onclick="selNav('m',${m})">${m+1}월</div>`;
+            const now = new Date(); cY = pY = now.getFullYear(); cM = pM = now.getMonth();
+            updateNavUI(); loadBoard();
+        };
+
+        function saveData() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+        function toggleDrop(id) { 
+            const el = document.getElementById(id);
+            const isShow = el.classList.contains('show');
+            document.querySelectorAll('.dropdown-panel').forEach(d => d.classList.remove('show'));
+            if(!isShow) { el.classList.add('show'); if(id === 'datePicker') renderP(); }
+        }
+        function selNav(t, v) { if(t==='y') cY=v; else cM=v; updateNavUI(); renderCalendar(); }
+        function updateNavUI() { document.getElementById('yTxt').innerText = cY; document.getElementById('mTxt').innerText = cM+1; }
+
+        function showPage(pId) {
+            document.querySelectorAll('.main-content').forEach(m => m.classList.remove('active'));
+            document.getElementById(pId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(pId === 'stats-page') updateStats();
+            if(pId === 'calendar-page') renderCalendar();
+            if(pId === 'board-page') loadBoard();
+        }
+
+        function getDDay(date) {
+            const diff = Math.ceil((new Date(date) - new Date().setHours(0,0,0,0)) / 86400000);
+            return diff === 0 ? "D-Day" : (diff < 0 ? "지남" : `D-${diff}`);
+        }
+
+        function loadBoard() {
+            document.querySelectorAll('.task-list').forEach(l => l.innerHTML = '');
+            tasks.forEach(t => {
+                const col = document.getElementById(t.status).querySelector('.task-list');
+                const card = document.createElement('div'); card.className = 'task-card'; card.id = t.id; card.draggable = true;
+                card.onclick = () => openEdit(t.id);
+                card.ondragstart = (e) => e.dataTransfer.setData("text", e.target.id);
+                const dday = getDDay(t.date);
+                card.innerHTML = `<p>${t.title}</p><div class="card-footer"><span class="tag ${t.tag}">${t.tag}</span><span class="d-day ${dday==='지남'?'expired':''}">${dday}</span></div>`;
+                col.appendChild(card);
+            });
+            document.querySelectorAll('.column .count').forEach(c => c.innerText = c.closest('.column').querySelectorAll('.task-card').length);
+        }
+
+        function openAddModal() { activeId = null; selD = ""; document.getElementById('taskTitle').value = ""; document.getElementById('taskMemo').value = ""; document.getElementById('dateVal').innerText = "마감 날짜 선택 📅"; document.getElementById('btnDelete').style.display='none'; openModal('taskModal'); }
+        function openEdit(id) {
+            const t = tasks.find(x => x.id === id); activeId = id; selD = t.date;
+            document.getElementById('taskTitle').value = t.title; document.getElementById('taskMemo').value = t.memo || '';
+            document.getElementById('taskTag').value = t.tag; document.getElementById('dateVal').innerText = t.date;
+            document.getElementById('btnDelete').style.display='block'; openModal('taskModal');
+        }
+
+        function changePM(v) { pM += v; if(pM>11){pM=0;pY++;} if(pM<0){pM=11;pY--;} renderP(); }
+        function renderP() {
+            const g = document.getElementById('pGrid'); g.innerHTML = ''; document.getElementById('pTitle').innerText = `${pY}.${pM+1}`;
+            ['S','M','T','W','T','F','S'].forEach(d => g.innerHTML += `<div class="p-cell p-head">${d}</div>`);
+            const f = new Date(pY, pM, 1).getDay(), l = new Date(pY, pM+1, 0).getDate();
+            for(let i=0; i<f; i++) g.innerHTML += `<div></div>`;
+            for(let d=1; d<=l; d++) {
+                const ds = `${pY}-${String(pM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const cell = document.createElement('div'); cell.className = `p-cell ${selD===ds?'selected':''}`;
+                cell.innerText = d; cell.onclick = (e) => { e.stopPropagation(); selD = ds; document.getElementById('dateVal').innerText = ds; toggleDrop(''); };
+                g.appendChild(cell);
+            }
+        }
+
+        function submitTask() {
+            const title = document.getElementById('taskTitle').value; if(!title || !selD) return alert("필수 입력!");
+            if(activeId) {
+                const idx = tasks.findIndex(x => x.id === activeId);
+                tasks[idx] = {...tasks[idx], title, tag: document.getElementById('taskTag').value, date: selD, memo: document.getElementById('taskMemo').value};
+            } else {
+                tasks.push({ id: 't-'+Date.now(), title, date: selD, tag: document.getElementById('taskTag').value, memo: document.getElementById('taskMemo').value, status: 'col-todo' });
+            }
+            saveData(); loadBoard(); closeModal();
+        }
+
+        function deleteTask() { if(confirm("삭제?")) { tasks = tasks.filter(x => x.id !== activeId); saveData(); loadBoard(); closeModal(); } }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => grid.innerHTML += `<div class="cal-header-day">${d}</div>`);
+            const f = new Date(cY, cM, 1).getDay(), l = new Date(cY, cM+1, 0).getDate(), now = new Date();
+            for(let i=0; i<f; i++) grid.innerHTML += `<div class="cal-day"></div>`;
+            for(let d=1; d<=l; d++) {
+                const ds = `${cY}-${String(cM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const evs = tasks.filter(x => x.date === ds).map(x => `<div class="cal-event ${x.tag}" onclick="openEdit('${x.id}'); event.stopPropagation();">${x.title}</div>`).join('');
+                const ist = (d === now.getDate() && cM === now.getMonth() && cY === now.getFullYear()) ? 'today' : '';
+                grid.innerHTML += `<div class="cal-day ${ist}">${d}${evs}</div>`;
+            }
+        }
+
+        function updateStats() {
+            const total = tasks.length, done = tasks.filter(x => x.status === 'col-done').length;
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-percent').innerText = total === 0 ? "0%" : Math.round((done/total)*100) + "%";
+            document.getElementById('progress-fill').style.width = (total === 0 ? 0 : (done/total)*100) + "%";
+        }
+
+        function drop(e) {
+            e.preventDefault(); const id = e.dataTransfer.getData("text");
+            const col = e.target.closest('.column');
+            if(col) { tasks.find(x => x.id == id).status = col.id; saveData(); loadBoard(); }
+        }
+        function allowDrop(e) { e.preventDefault(); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal() { document.getElementById('taskModal').style.display = 'none'; document.querySelectorAll('.dropdown-panel').forEach(d => d.classList.remove('show')); }
+        window.onclick = (e) => { if(!e.target.closest('.custom-select-box')) document.querySelectorAll('.dropdown-panel').forEach(d => d.classList.remove('show')); };
+    </script>
+</body>
+</html>
