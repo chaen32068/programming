@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>할부금 계산기</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:#f5f5f5;
+  font-family:"Pretendard", sans-serif;
+}
+
+.installment-popup{
+  width:520px;
+  margin:40px auto;
+  background:#fff;
+  padding:40px;
+}
+
+.popup-top{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:50px;
+}
+
+.title{
+  font-size:28px;
+  font-weight:700;
+}
+
+.desc{
+  margin-top:20px;
+  font-size:18px;
+  line-height:1.5;
+}
+
+.form-group{
+  margin-bottom:40px;
+}
+
+.label{
+  display:block;
+  font-size:15px;
+  color:#666;
+  margin-bottom:10px;
+}
+
+.input-wrap{
+  position:relative;
+}
+
+.input{
+  width:100%;
+  border:none;
+  border-bottom:1px solid #ddd;
+  padding:10px 40px 10px 0;
+  font-size:32px;
+  font-weight:700;
+}
+
+.unit{
+  position:absolute;
+  right:0;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.select{
+  width:100%;
+  height:52px;
+  border:none;
+  border-bottom:1px solid #ddd;
+  font-size:20px;
+}
+
+.period-box{
+  text-align:center;
+}
+
+.period-text{
+  color:#d40000;
+  font-size:30px;
+  font-weight:700;
+}
+
+.period-text span{
+  color:#222;
+}
+
+.range{
+  width:100%;
+  margin-top:30px;
+}
+
+.month-list{
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+}
+
+.result-btn{
+  width:100%;
+  height:64px;
+  background:#b60000;
+  color:white;
+  border:none;
+  margin-top:50px;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:30px;
+  text-align:center;
+  display:none;
+}
+
+.result strong{
+  color:#d40000;
+  font-size:34px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="installment-popup">
+
+<div class="popup-top">
+<div>
+<div class="title">할부금 간편 견적</div>
+
+<div class="desc">
+할부조건을 입력하고<br>
+예상 납부금액을 확인해 보세요
+</div>
+</div>
+
+<div>✕</div>
+</div>
+
+<div class="form-group">
+<label class="label">할부이용금액</label>
+
+<div class="input-wrap">
+<input
+id="amount"
+class="input"
+value="10000000"
+/>
+<span class="unit">원</span>
+</div>
+</div>
+
+<div class="form-group">
+<label class="label">선수금 이용금액</label>
+
+<div class="input-wrap">
+<input
+id="deposit"
+class="input"
+value="0"
+/>
+<span class="unit">원</span>
+</div>
+</div>
+
+<div class="form-group">
+
+<label class="label">
+상환방식
+</label>
+
+<select id="method" class="select">
+<option value="equal">
+원리금균등분할상환
+</option>
+
+<option value="principal">
+원금균등분할상환
+</option>
+
+</select>
+
+</div>
+
+<div class="period-box">
+
+<div class="period-text">
+연 3.2%
+<span id="monthText">(36개월)</span>
+</div>
+
+<input
+class="range"
+id="period"
+type="range"
+min="12"
+max="60"
+step="12"
+value="36"
+/>
+
+<div class="month-list">
+<span>12개월</span>
+<span>24개월</span>
+<span>36개월</span>
+<span>48개월</span>
+<span>60개월</span>
+</div>
+
+</div>
+
+<button
+class="result-btn"
+onclick="calc()"
+>
+간편 견적 보기
+</button>
+
+<div
+class="result"
+id="result"
+></div>
+
+</div>
+
+<script>
+
+const period=document.getElementById("period");
+const monthText=document.getElementById("monthText");
+
+period.addEventListener("input",()=>{
+monthText.innerHTML=`(${period.value}개월)`;
+});
+
+function calc(){
+
+const amount=
+Number(
+document
+.getElementById("amount")
+.value
+.replaceAll(",","")
+);
+
+const deposit=
+Number(
+document
+.getElementById("deposit")
+.value
+.replaceAll(",","")
+);
+
+const month=
+Number(period.value);
+
+const rate=3.2/100/12;
+
+const principal=
+amount-deposit;
+
+let payment=0;
+
+if(principal<=0){
+alert("선수금이 할부금보다 큽니다.");
+return;
+}
+
+payment=
+principal*
+(rate*Math.pow(1+rate,month))/
+(Math.pow(1+rate,month)-1);
+
+document
+.getElementById("result")
+.style.display="block";
+
+document
+.getElementById("result")
+.innerHTML=
+`
+예상 월 납부금액<br><br>
+<strong>
+${Math.round(payment).toLocaleString()}원
+</strong>
+`;
+
+}
+
+</script>
+
+</body>
+</html>
