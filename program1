@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1"
+/>
+
+<title>인덱스</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#f5f5f5;
+font-family:Pretendard,sans-serif;
+}
+
+
+
+/* 팝업 */
+
+.installment-wrap{
+
+position:relative;
+
+width:520px;
+
+margin:50px auto;
+
+padding:48px;
+
+background:#fff;
+
+}
+
+
+
+/* 닫기 */
+
+.close-btn{
+
+position:absolute;
+
+top:28px;
+
+right:28px;
+
+border:none;
+
+background:none;
+
+font-size:28px;
+
+cursor:pointer;
+
+}
+
+
+
+/* 타이틀 */
+
+.title{
+
+font-size:30px;
+
+font-weight:700;
+
+}
+
+.desc{
+
+margin-top:20px;
+
+line-height:1.6;
+
+}
+
+
+
+/* 공통 */
+
+.form-group{
+
+margin-top:40px;
+
+}
+
+.label-wrap{
+
+display:flex;
+
+align-items:center;
+
+gap:6px;
+
+margin-bottom:12px;
+
+}
+
+.label{
+
+font-size:15px;
+
+color:#666;
+
+}
+
+
+
+/* 물음표 */
+
+.help-btn{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:0;
+
+border:none;
+
+background:none;
+
+cursor:pointer;
+
+}
+
+.help-btn img{
+
+width:18px;
+
+height:18px;
+
+}
+
+
+
+/* 입력 */
+
+.input-wrap{
+
+position:relative;
+
+}
+
+.input{
+
+width:100%;
+
+height:64px;
+
+padding-right:40px;
+
+border:none;
+
+border-bottom:1px solid #ddd;
+
+font-size:34px;
+
+font-weight:700;
+
+}
+
+.input:focus{
+
+outline:none;
+
+}
+
+.input.error{
+
+border-bottom:2px solid #d60000;
+
+}
+
+.unit{
+
+position:absolute;
+
+right:0;
+
+top:50%;
+
+transform:translateY(-50%);
+
+}
+
+
+
+/* 오류 */
+
+.show{
+display:block;
+}
+
+.hide{
+display:none;
+}
+
+.guide{
+
+margin-top:10px;
+
+font-size:14px;
+
+color:#d60000;
+
+}
+
+
+
+/* 상환방식 */
+
+.method-display{
+
+height:64px;
+
+display:flex;
+
+align-items:center;
+
+padding:0 20px;
+
+background:#f8f8f8;
+
+border-radius:10px;
+
+font-size:18px;
+
+}
+
+
+
+/* 기간 */
+
+.period{
+
+margin-top:50px;
+
+}
+
+.period-title{
+
+text-align:center;
+
+font-size:30px;
+
+font-weight:700;
+
+color:#b50000;
+
+}
+
+.period-title span{
+
+color:#111;
+
+}
+
+
+
+/* range */
+
+.range{
+
+appearance:none;
+
+width:100%;
+
+height:8px;
+
+margin-top:30px;
+
+border-radius:999px;
+
+background:#eee;
+
+}
+
+.range::-webkit-slider-thumb{
+
+appearance:none;
+
+width:28px;
+
+height:28px;
+
+border-radius:50%;
+
+background:#fff;
+
+border:8px solid #b50000;
+
+box-shadow:0 3px 10px rgba(0,0,0,.12);
+
+cursor:pointer;
+
+}
+
+
+
+/* 개월 */
+
+.month-list{
+
+display:flex;
+
+justify-content:space-between;
+
+margin-top:16px;
+
+}
+
+.month{
+
+font-size:14px;
+
+color:#999;
+
+}
+
+.month.active{
+
+color:#b50000;
+
+font-weight:700;
+
+}
+
+
+
+/* 버튼 */
+
+.btn{
+
+width:100%;
+
+height:64px;
+
+margin-top:50px;
+
+border:none;
+
+background:#b50000;
+
+color:#fff;
+
+font-size:18px;
+
+cursor:pointer;
+
+}
+
+
+
+/* 결과 */
+
+.result{
+
+display:none;
+
+margin-top:40px;
+
+text-align:center;
+
+}
+
+.result strong{
+
+font-size:34px;
+
+color:#b50000;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div class="installment-wrap">
+
+<button
+class="close-btn"
+type="button"
+>
+
+×
+
+</button>
+
+
+<div class="title">
+
+할부금 간편 견적
+
+</div>
+
+
+<div class="desc">
+
+할부조건을 입력하고<br>
+예상 납부금액을 확인해 보세요
+
+</div>
+
+
+
+<!-- 할부금 -->
+
+<div class="form-group">
+
+<div class="label-wrap">
+
+<label class="label">
+
+할부이용금액
+
+</label>
+
+</div>
+
+
+<div class="input-wrap">
+
+<input
+id="amount"
+class="input"
+/>
+
+<span class="unit">
+
+원
+
+</span>
+
+</div>
+
+
+<p
+id="amountError"
+class="guide hide"
+>
+
+300만원부터 1억 3,000만원까지 입력할 수 있습니다.
+
+</p>
+
+</div>
+
+
+
+
+<!-- 선수금 -->
+
+<div class="form-group">
+
+<div class="label-wrap">
+
+<label class="label">
+
+선수금 이용금액
+
+</label>
+
+<button
+class="help-btn"
+type="button"
+>
+
+<img
+src="./images/icon-question.svg"
+alt=""
+/>
+
+</button>
+
+</div>
+
+
+<div class="input-wrap">
+
+<input
+id="deposit"
+class="input"
+value="0"
+/>
+
+<span class="unit">
+
+원
+
+</span>
+
+</div>
+
+</div>
+
+
+
+
+<!-- 상환방식 -->
+
+<div class="form-group">
+
+<div class="label-wrap">
+
+<label class="label">
+
+상환방식
+
+</label>
+
+<button
+class="help-btn"
+type="button"
+>
+
+<img
+src="./images/icon-question.svg"
+alt=""
+/>
+
+</button>
+
+</div>
+
+
+<div class="method-display">
+
+원리금균등분할상환
+
+</div>
+
+
+<input
+type="hidden"
+id="method"
+value="equal"
+/>
+
+</div>
+
+
+
+
+<!-- 기간 -->
+
+<div class="period">
+
+<div class="period-title">
+
+연 4.2%
+
+<span id="monthText">
+
+(36개월)
+
+</span>
+
+</div>
+
+
+<input
+id="period"
+class="range"
+type="range"
+
+min="12"
+max="60"
+step="12"
+value="36"
+/>
+
+
+<div class="month-list">
+
+<span class="month">12개월</span>
+<span class="month">24개월</span>
+<span class="month active">36개월</span>
+<span class="month">48개월</span>
+<span class="month">60개월</span>
+
+</div>
+
+</div>
+
+
+
+
+<button
+class="btn"
+onclick="calc()"
+>
+
+간편 견적 보기
+
+</button>
+
+
+<div
+id="result"
+class="result"
+></div>
+
+
+</div>
+
+
+
+<script>
+
+const period=
+document.getElementById(
+"period"
+);
+
+const monthText=
+document.getElementById(
+"monthText"
+);
+
+const months=
+document.querySelectorAll(
+".month"
+);
+
+
+function updateRange(){
+
+const value=
+Number(
+period.value
+);
+
+const percent=
+(
+(value-12)
+/
+48
+)
+*
+100;
+
+
+period.style.background=
+`
+linear-gradient(
+to right,
+#b50000 ${percent}%,
+#eee ${percent}%
+)
+`;
+
+
+monthText.innerHTML=
+`(${value}개월)`;
+
+
+months.forEach(
+(item,index)=>{
+
+item.classList.remove(
+"active"
+);
+
+if(
+(index+1)*12
+===
+value
+){
+
+item.classList.add(
+"active"
+);
+
+}
+
+});
+
+}
+
+
+updateRange();
+
+
+period.addEventListener(
+"input",
+updateRange
+);
+
+
+
+function calc(){
+
+const input=
+document.getElementById(
+"amount"
+);
+
+const error=
+document.getElementById(
+"amountError"
+);
+
+const amount=
+Number(
+input.value
+);
+
+
+if(
+amount<3000000
+||
+amount>130000000
+){
+
+input.classList.add(
+"error"
+);
+
+error.classList.remove(
+"hide"
+);
+
+error.classList.add(
+"show"
+);
+
+return;
+
+}
+
+
+input.classList.remove(
+"error"
+);
+
+error.classList.remove(
+"show"
+);
+
+error.classList.add(
+"hide"
+);
+
+}
+
+</script>
+
+</body>
+
+</html>
