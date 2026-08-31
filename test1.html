@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>상담신청</title>
+
+    <style>
+
+        /* ========================================
+           RESET
+        ======================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                "Pretendard",
+                "Noto Sans KR",
+                Arial,
+                sans-serif;
+
+            color: #111;
+            background: #fff;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        button {
+            border: 0;
+            padding: 0;
+            background: none;
+            cursor: pointer;
+        }
+
+
+        /* ========================================
+           전체
+        ======================================== */
+
+        .rental-consult {
+            width: 100%;
+            min-height: 100vh;
+            background: #fff;
+        }
+
+
+        /* ========================================
+           HEADER
+        ======================================== */
+
+        .rental-consult__header {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            height: 64px;
+        }
+
+        .rental-consult__title {
+            margin: 0;
+
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+
+        /* 뒤로가기 */
+
+        .rental-consult__back {
+            position: absolute;
+
+            left: 20px;
+            top: 50%;
+
+            width: 32px;
+            height: 32px;
+
+            transform: translateY(-50%);
+        }
+
+        .rental-consult__back::before {
+            content: "";
+
+            position: absolute;
+
+            left: 10px;
+            top: 8px;
+
+            width: 11px;
+            height: 11px;
+
+            border-left: 2px solid #111;
+            border-bottom: 2px solid #111;
+
+            transform: rotate(45deg);
+        }
+
+
+        /* ========================================
+           CONTENT
+        ======================================== */
+
+        .rental-consult__body {
+            width: 100%;
+            max-width: 560px;
+
+            margin: 0 auto;
+
+            padding: 70px 20px 40px;
+        }
+
+
+        /* ========================================
+           안내 문구
+        ======================================== */
+
+        .rental-consult__intro {
+            margin-bottom: 42px;
+        }
+
+        .rental-consult__intro h2 {
+            margin: 0;
+
+            font-size: 24px;
+            line-height: 1.45;
+            font-weight: 700;
+
+            letter-spacing: -0.8px;
+        }
+
+
+        /* ========================================
+           약관
+        ======================================== */
+
+        .rental-consult__terms {
+            margin-bottom: 40px;
+        }
+
+        .rental-consult__section-title {
+            margin: 0 0 18px;
+
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 700;
+        }
+
+
+        /* 체크박스 */
+
+        .rental-consult__check {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            min-height: 44px;
+
+            cursor: pointer;
+        }
+
+        .rental-consult__check input {
+            position: absolute;
+
+            width: 1px;
+            height: 1px;
+
+            opacity: 0;
+        }
+
+
+        /* 체크 아이콘 */
+
+        .check-icon {
+            position: relative;
+
+            flex: 0 0 24px;
+
+            width: 24px;
+            height: 24px;
+
+            margin-right: 10px;
+
+            border-radius: 50%;
+
+            background: #d9d9d9;
+        }
+
+        .check-icon::after {
+            content: "";
+
+            position: absolute;
+
+            left: 7px;
+            top: 5px;
+
+            width: 8px;
+            height: 5px;
+
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+
+            transform: rotate(-45deg);
+        }
+
+        .rental-consult__check input:checked + .check-icon {
+            background: #1769d5;
+        }
+
+        .check-text {
+            font-size: 15px;
+            font-weight: 600;
+
+            letter-spacing: -0.4px;
+        }
+
+
+        /* 개별 약관 */
+
+        .rental-consult__agree-item {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            min-height: 44px;
+        }
+
+
+        /* 약관 상세 > */
+
+        .terms-detail {
+            position: absolute;
+
+            right: 0;
+            top: 50%;
+
+            width: 30px;
+            height: 30px;
+
+            transform: translateY(-50%);
+        }
+
+        .terms-detail::after {
+            content: "";
+
+            position: absolute;
+
+            left: 9px;
+            top: 8px;
+
+            width: 8px;
+            height: 8px;
+
+            border-top: 2px solid #777;
+            border-right: 2px solid #777;
+
+            transform: rotate(45deg);
+        }
+
+
+        /* ========================================
+           입력 영역
+        ======================================== */
+
+        .rental-consult__field {
+            margin-bottom: 27px;
+        }
+
+        .rental-consult__field > label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #999;
+
+            font-size: 12px;
+            line-height: 1.3;
+            font-weight: 500;
+        }
+
+
+        /* 일반 input */
+
+        .rental-consult__field > input {
+            display: block;
+
+            width: 100%;
+            height: 43px;
+
+            padding: 0;
+
+            border: 0;
+            border-bottom: 1px solid #ddd;
+
+            outline: none;
+
+            background: transparent;
+
+            color: #111;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .rental-consult__field > input:focus {
+            border-bottom-color: #222;
+        }
+
+        .rental-consult__field input::placeholder {
+            color: #aaa;
+        }
+
+
+        /* ========================================
+           주민등록번호
+           
+           앞 6자리      -      뒷 1자리 ●●●●●●
+           ────────            ─────
+             밑줄                밑줄
+           
+           ● 부분에는 밑줄 없음
+        ======================================== */
+
+        .rental-consult__resident {
+            display: flex;
+            align-items: center;
+
+            width: 100%;
+            height: 43px;
+        }
+
+
+        /* 앞 6자리 */
+
+        #residentFront {
+            width: 45%;
+            height: 43px;
+
+            padding: 0;
+
+            border: 0;
+            border-bottom: 1px solid #ddd;
+
+            outline: none;
+
+            background: transparent;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #residentFront:focus {
+            border-bottom-color: #222;
+        }
+
+
+        /* 하이픈 */
+
+        .resident-dash {
+            flex: 0 0 auto;
+
+            margin: 0 12px;
+
+            color: #777;
+
+            font-size: 16px;
+        }
+
+
+        /* 뒷자리 첫 번째 숫자 */
+
+        #residentBack {
+            width: 20px;
+            height: 43px;
+
+            padding: 0;
+
+            border: 0;
+            border-bottom: 1px solid #ddd;
+
+            outline: none;
+
+            background: transparent;
+
+            text-align: center;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #residentBack:focus {
+            border-bottom-color: #222;
+        }
+
+
+        /* 뒷자리 나머지 6자리 */
+
+        .resident-mask {
+            margin-left: 7px;
+
+            color: #111;
+
+            font-size: 9px;
+            letter-spacing: 3px;
+
+            white-space: nowrap;
+        }
+
+
+        /* ========================================
+           휴대폰
+        ======================================== */
+
+        .rental-consult__phone-title {
+            display: grid;
+
+            grid-template-columns: 130px 1fr;
+
+            column-gap: 15px;
+        }
+
+        .rental-consult__phone-title label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #999;
+
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+
+        .rental-consult__phone {
+            display: flex;
+            align-items: center;
+
+            height: 43px;
+
+            gap: 10px;
+        }
+
+
+        /* 통신사 */
+
+        .rental-consult__phone select {
+            flex: 0 0 130px;
+
+            width: 130px;
+            height: 43px;
+
+            padding: 0;
+
+            border: 0;
+            border-bottom: 1px solid #ddd;
+
+            outline: none;
+
+            background: #fff;
+
+            color: #111;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        /* 휴대폰 번호 */
+
+        .rental-consult__phone input {
+            flex: 1;
+
+            min-width: 0;
+
+            height: 43px;
+
+            padding: 0;
+
+            border: 0;
+            border-bottom: 1px solid #ddd;
+
+            outline: none;
+
+            background: transparent;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+
+        /* 인증번호 발송 */
+
+        .verify-request {
+            flex: 0 0 auto;
+
+            color: #1769d5;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        /* ========================================
+           인증번호
+        ======================================== */
+
+        .rental-consult__verify {
+            position: relative;
+
+            height: 43px;
+
+            border-bottom: 1px solid #ddd;
+        }
+
+        .rental-consult__verify input {
+            width: 100%;
+            height: 42px;
+
+            padding: 0 115px 0 0;
+
+            border: 0;
+            outline: none;
+
+            background: transparent;
+
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+
+        /* 확인 */
+
+        .rental-consult__verify button {
+            position: absolute;
+
+            right: 42px;
+            top: 50%;
+
+            color: #1769d5;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            transform: translateY(-50%);
+        }
+
+
+        /* 타이머 */
+
+        #timer {
+            position: absolute;
+
+            right: 0;
+            top: 50%;
+
+            color: #1769d5;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            transform: translateY(-50%);
+        }
+
+
+        /* ========================================
+           다음 버튼
+        ======================================== */
+
+        .rental-consult__submit {
+            width: 100%;
+            height: 56px;
+
+            margin-top: 45px;
+
+            border-radius: 8px;
+
+            background: #1769d5;
+
+            color: #fff;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            transition: background 0.2s;
+        }
+
+        .rental-consult__submit:disabled {
+            background: #ddd;
+
+            color: #999;
+
+            cursor: default;
+        }
+
+
+        /* ========================================
+           약관 팝업
+        ======================================== */
+
+        .terms-modal {
+            display: none;
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+
+            width: 100%;
+            height: 100%;
+
+            z-index: 1000;
+        }
+
+        .terms-modal.is-open {
+            display: block;
+        }
+
+        .terms-modal__dim {
+            position: absolute;
+
+            left: 0;
+            top: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.45);
+        }
+
+        .terms-modal__content {
+            position: absolute;
+
+            left: 50%;
+            bottom: 0;
+
+            width: 100%;
+            max-width: 560px;
+
+            max-height: 80vh;
+
+            padding: 25px 20px 30px;
+
+            border-radius: 20px 20px 0 0;
+
+            background: #fff;
+
+            transform: translateX(-50%);
+        }
+
+        .terms-modal__title {
+            margin: 0 0 20px;
+
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .terms-modal__text {
+            overflow-y: auto;
+
+            max-height: 50vh;
+
+            color: #666;
+
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .terms-modal__close {
+            width: 100%;
+            height: 50px;
+
+            margin-top: 20px;
+
+            border-radius: 6px;
+
+            background: #222;
+
+            color: #fff;
+        }
+
+
+        /* ========================================
+           MOBILE
+        ======================================== */
+
+        @media (max-width: 480px) {
+
+            .rental-consult__header {
+                height: 58px;
+            }
+
+            .rental-consult__title {
+                font-size: 17px;
+            }
+
+            .rental-consult__body {
+                padding: 55px 20px 30px;
+            }
+
+            .rental-consult__intro {
+                margin-bottom: 36px;
+            }
+
+            .rental-consult__intro h2 {
+                font-size: 23px;
+            }
+
+            .rental-consult__terms {
+                margin-bottom: 35px;
+            }
+
+            .check-text {
+                font-size: 14px;
+            }
+
+
+            /* 모바일 통신사 영역 */
+
+            .rental-consult__phone-title {
+                grid-template-columns: 105px 1fr;
+            }
+
+            .rental-consult__phone select {
+                flex-basis: 105px;
+                width: 105px;
+            }
+
+            .verify-request {
+                font-size: 11px;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<div class="rental-consult">
+
+
+    <!-- ========================================
+         HEADER
+    ======================================== -->
+
+    <header class="rental-consult__header">
+
+        <button
+            type="button"
+            class="rental-consult__back"
+            aria-label="이전 페이지"
+            onclick="history.back();">
+        </button>
+
+        <h1 class="rental-consult__title">
+            상담신청
+        </h1>
+
+    </header>
+
+
+    <!-- ========================================
+         BODY
+    ======================================== -->
+
+    <main class="rental-consult__body">
+
+
+        <!-- 안내 문구 -->
+
+        <div class="rental-consult__intro">
+
+            <h2>
+                상담신청을 위해<br>
+                본인인증을 해주세요
+            </h2>
+
+        </div>
+
+
+        <!-- ========================================
+             약관
+        ======================================== -->
+
+        <section class="rental-consult__terms">
+
+            <h3 class="rental-consult__section-title">
+                (필수) 휴대폰인증 동의
+            </h3>
+
+
+            <!-- 전체 동의 -->
+
+            <label class="rental-consult__check">
+
+                <input
+                    type="checkbox"
+                    id="agreeAll">
+
+                <span class="check-icon"></span>
+
+                <span class="check-text">
+                    전체 동의 (필수)
+                </span>
+
+            </label>
+
+
+            <!-- 개인정보 -->
+
+            <div class="rental-consult__agree-item">
+
+                <label class="rental-consult__check">
+
+                    <input
+                        type="checkbox"
+                        class="agree-item">
+
+                    <span class="check-icon"></span>
+
+                    <span class="check-text">
+                        개인정보 이용 및 제공 동의
+                    </span>
+
+                </label>
+
+                <button
+                    type="button"
+                    class="terms-detail"
+                    data-title="개인정보 이용 및 제공 동의"
+                    aria-label="개인정보 이용 및 제공 동의 상세">
+                </button>
+
+            </div>
+
+
+            <!-- 고유식별정보 -->
+
+            <div class="rental-consult__agree-item">
+
+                <label class="rental-consult__check">
+
+                    <input
+                        type="checkbox"
+                        class="agree-item">
+
+                    <span class="check-icon"></span>
+
+                    <span class="check-text">
+                        고유식별정보 처리에 관한 동의
+                    </span>
+
+                </label>
+
+                <button
+                    type="button"
+                    class="terms-detail"
+                    data-title="고유식별정보 처리에 관한 동의"
+                    aria-label="고유식별정보 처리에 관한 동의 상세">
+                </button>
+
+            </div>
+
+
+            <!-- 통신사 이용약관 -->
+
+            <div class="rental-consult__agree-item">
+
+                <label class="rental-consult__check">
+
+                    <input
+                        type="checkbox"
+                        class="agree-item">
+
+                    <span class="check-icon"></span>
+
+                    <span class="check-text">
+                        통신사 이용약관 동의
+                    </span>
+
+                </label>
+
+                <button
+                    type="button"
+                    class="terms-detail"
+                    data-title="통신사 이용약관 동의"
+                    aria-label="통신사 이용약관 동의 상세">
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================
+             이름
+        ======================================== -->
+
+        <div class="rental-consult__field">
+
+            <label for="userName">
+                이름
+            </label>
+
+            <input
+                type="text"
+                id="userName"
+                placeholder="이름을 입력해주세요"
+                autocomplete="off">
+
+        </div>
+
+
+        <!-- ========================================
+             주민등록번호
+        ======================================== -->
+
+        <div class="rental-consult__field">
+
+            <label>
+                주민등록번호
+            </label>
+
+
+            <div class="rental-consult__resident">
+
+
+                <!-- 앞 6자리 : 입력칸 -->
+
+                <input
+                    type="text"
+                    id="residentFront"
+                    maxlength="6"
+                    inputmode="numeric"
+                    placeholder="앞 6자리"
+                    autocomplete="off">
+
+
+                <!-- 하이픈 -->
+
+                <span class="resident-dash">
+                    -
+                </span>
+
+
+                <!-- 뒷자리 첫 번째 숫자 : 입력칸 -->
+
+                <input
+                    type="text"
+                    id="residentBack"
+                    maxlength="1"
+                    inputmode="numeric"
+                    placeholder="뒷 1자리"
+                    autocomplete="off">
+
+
+                <!-- 뒷자리 나머지 : 표시만 -->
+
+                <span class="resident-mask">
+                    ●●●●●●
+                </span>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================
+             휴대폰번호
+        ======================================== -->
+
+        <div class="rental-consult__field">
+
+
+            <div class="rental-consult__phone-title">
+
+                <label for="carrier">
+                    통신사
+                </label>
+
+                <label for="phone">
+                    휴대폰번호
+                </label>
+
+            </div>
+
+
+            <div class="rental-consult__phone">
+
+
+                <!-- 통신사 -->
+
+                <select id="carrier">
+
+                    <!-- 처음에만 선택 표시 -->
+                    <option
+                        value=""
+                        selected
+                        hidden>
+                        선택
+                    </option>
+
+                    <option value="skt">
+                        SKT
+                    </option>
+
+                    <option value="kt">
+                        KT
+                    </option>
+
+                    <option value="lgu">
+                        LG U+
+                    </option>
+
+                </select>
+
+
+                <!-- 휴대폰번호 -->
+
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="010-1234-5678"
+                    maxlength="13"
+                    inputmode="numeric"
+                    autocomplete="off">
+
+
+                <!-- 인증번호 발송 -->
+
+                <button
+                    type="button"
+                    class="verify-request"
+                    id="requestCode">
+
+                    인증번호 발송
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================
+             인증번호
+        ======================================== -->
+
+        <div class="rental-consult__field">
+
+
+            <label for="verifyCode">
+                인증번호
+            </label>
+
+
+            <div class="rental-consult__verify">
+
+
+                <input
+                    type="text"
+                    id="verifyCode"
+                    maxlength="6"
+                    inputmode="numeric"
+                    placeholder="인증번호를 입력해주세요"
+                    autocomplete="off">
+
+
+                <button
+                    type="button"
+                    id="verifyBtn">
+
+                    확인
+
+                </button>
+
+
+                <span id="timer">
+                    03:00
+                </span>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================
+             다음 버튼
+        ======================================== -->
+
+        <button
+            type="button"
+            class="rental-consult__submit"
+            id="nextBtn"
+            disabled>
+
+            다음
+
+        </button>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ========================================
+     약관 상세 팝업
+======================================== -->
+
+<div
+    class="terms-modal"
+    id="termsModal">
+
+    <div
+        class="terms-modal__dim"
+        id="modalDim">
+    </div>
+
+
+    <div class="terms-modal__content">
+
+        <h3
+            class="terms-modal__title"
+            id="modalTitle">
+            약관
+        </h3>
+
+
+        <div class="terms-modal__text">
+
+            개인정보 이용 및 제공에 동의합니다.
+            <br><br>
+
+            본인인증을 위해 필요한 개인정보를
+            수집 및 이용할 수 있습니다.
+            <br><br>
+
+            수집된 개인정보는 본인인증 및
+            상담신청을 위한 목적으로만 이용됩니다.
+
+        </div>
+
+
+        <button
+            type="button"
+            class="terms-modal__close"
+            id="modalClose">
+
+            닫기
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+
+        /* ========================================
+           ELEMENT
+        ======================================== */
+
+        const agreeAll =
+            document.getElementById("agreeAll");
+
+        const agreeItems =
+            document.querySelectorAll(".agree-item");
+
+        const userName =
+            document.getElementById("userName");
+
+        const residentFront =
+            document.getElementById("residentFront");
+
+        const residentBack =
+            document.getElementById("residentBack");
+
+        const carrier =
+            document.getElementById("carrier");
+
+        const phone =
+            document.getElementById("phone");
+
+        const verifyCode =
+            document.getElementById("verifyCode");
+
+        const requestCode =
+            document.getElementById("requestCode");
+
+        const verifyBtn =
+            document.getElementById("verifyBtn");
+
+        const timer =
+            document.getElementById("timer");
+
+        const nextBtn =
+            document.getElementById("nextBtn");
+
+
+        let timerInterval = null;
+
+        let verifyComplete = false;
+
+
+        /* ========================================
+           전체 동의
+        ======================================== */
+
+        agreeAll.addEventListener(
+            "change",
+            function () {
+
+                agreeItems.forEach(function (item) {
+
+                    item.checked =
+                        agreeAll.checked;
+
+                });
+
+                updateNextButton();
+
+            }
+        );
+
+
+        /* ========================================
+           개별 동의
+        ======================================== */
+
+        agreeItems.forEach(function (item) {
+
+            item.addEventListener(
+                "change",
+                function () {
+
+                    const checkedCount =
+                        document.querySelectorAll(
+                            ".agree-item:checked"
+                        ).length;
+
+
+                    agreeAll.checked =
+                        checkedCount ===
+                        agreeItems.length;
+
+
+                    updateNextButton();
+
+                }
+            );
+
+        });
+
+
+        /* ========================================
+           주민등록번호 숫자만 입력
+        ======================================== */
+
+        [residentFront, residentBack]
+            .forEach(function (input) {
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        this.value =
+                            this.value.replace(
+                                /[^0-9]/g,
+                                ""
+                            );
+
+                    }
+                );
+
+            });
+
+
+        /* ========================================
+           휴대폰번호 숫자 + 하이픈
+        ======================================== */
+
+        phone.addEventListener(
+            "input",
+            function () {
+
+                let value =
+                    this.value.replace(
+                        /[^0-9]/g,
+                        ""
+                    );
+
+
+                if (value.length <= 3) {
+
+                    this.value = value;
+
+                }
+                else if (value.length <= 7) {
+
+                    this.value =
+                        value.slice(0, 3) +
+                        "-" +
+                        value.slice(3);
+
+                }
+                else {
+
+                    this.value =
+                        value.slice(0, 3) +
+                        "-" +
+                        value.slice(3, 7) +
+                        "-" +
+                        value.slice(7, 11);
+
+                }
+
+
+                updateNextButton();
+
+            }
+        );
+
+
+        /* ========================================
+           인증번호 숫자만
+        ======================================== */
+
+        verifyCode.addEventListener(
+            "input",
+            function () {
+
+                this.value =
+                    this.value.replace(
+                        /[^0-9]/g,
+                        ""
+                    );
+
+            }
+        );
+
+
+        /* ========================================
+           인증번호 발송
+        ======================================== */
+
+        requestCode.addEventListener(
+            "click",
+            function () {
+
+                const phoneNumber =
+                    phone.value.replace(
+                        /[^0-9]/g,
+                        ""
+                    );
+
+
+                /* 통신사 확인 */
+
+                if (!carrier.value) {
+
+                    alert(
+                        "통신사를 선택해주세요."
+                    );
+
+                    carrier.focus();
+
+                    return;
+
+                }
+
+
+                /* 휴대폰번호 확인 */
+
+                if (phoneNumber.length !== 11) {
+
+                    alert(
+                        "휴대폰번호를 정확하게 입력해주세요."
+                    );
+
+                    phone.focus();
+
+                    return;
+
+                }
+
+
+                /* 인증 상태 초기화 */
+
+                verifyComplete = false;
+
+                verifyBtn.disabled = false;
+
+                verifyBtn.textContent = "확인";
+
+                verifyBtn.style.color =
+                    "#1769d5";
+
+
+                alert(
+                    "인증번호가 발송되었습니다."
+                );
+
+
+                /* 3분 타이머 */
+
+                let remainingTime = 180;
+
+
+                clearInterval(timerInterval);
+
+
+                timer.textContent = "03:00";
+
+
+                timerInterval =
+                    setInterval(function () {
+
+                        const minutes =
+                            Math.floor(
+                                remainingTime / 60
+                            );
+
+
+                        const seconds =
+                            remainingTime % 60;
+
+
+                        timer.textContent =
+                            String(minutes)
+                                .padStart(2, "0") +
+                            ":" +
+                            String(seconds)
+                                .padStart(2, "0");
+
+
+                        remainingTime--;
+
+
+                        if (remainingTime < 0) {
+
+                            clearInterval(
+                                timerInterval
+                            );
+
+                            timer.textContent =
+                                "00:00";
+
+                            verifyComplete =
+                                false;
+
+                            updateNextButton();
+
+                        }
+
+                    }, 1000);
+
+            }
+        );
+
+
+        /* ========================================
+           인증번호 확인
+        ======================================== */
+
+        verifyBtn.addEventListener(
+            "click",
+            function () {
+
+                const code =
+                    verifyCode.value.trim();
+
+
+                if (!code) {
+
+                    alert(
+                        "인증번호를 입력해주세요."
+                    );
+
+                    verifyCode.focus();
+
+                    return;
+
+                }
+
+
+                if (code.length !== 6) {
+
+                    alert(
+                        "인증번호 6자리를 입력해주세요."
+                    );
+
+                    verifyCode.focus();
+
+                    return;
+
+                }
+
+
+                /*
+                 * 실제 서비스에서는
+                 * 여기에서 인증 API 결과 확인
+                 */
+
+                verifyComplete = true;
+
+
+                verifyBtn.textContent =
+                    "인증완료";
+
+                verifyBtn.disabled = true;
+
+                verifyBtn.style.color =
+                    "#999";
+
+
+                alert(
+                    "본인인증이 완료되었습니다."
+                );
+
+
+                updateNextButton();
+
+            }
+        );
+
+
+        /* ========================================
+           다음 버튼 활성화
+        ======================================== */
+
+        function updateNextButton() {
+
+            const allAgreed =
+                document.querySelectorAll(
+                    ".agree-item:checked"
+                ).length ===
+                agreeItems.length;
+
+
+            const nameEntered =
+                userName.value.trim().length > 0;
+
+
+            /*
+             * 필수 약관 +
+             * 이름 +
+             * 본인인증 완료
+             */
+
+            nextBtn.disabled =
+                !(
+                    allAgreed &&
+                    nameEntered &&
+                    verifyComplete
+                );
+
+        }
+
+
+        /* ========================================
+           이름 입력
+        ======================================== */
+
+        userName.addEventListener(
+            "input",
+            function () {
+
+                updateNextButton();
+
+            }
+        );
+
+
+        /* ========================================
+           다음 버튼
+        ======================================== */
+
+        nextBtn.addEventListener(
+            "click",
+            function () {
+
+                if (nextBtn.disabled) {
+                    return;
+                }
+
+
+                alert(
+                    "다음 단계로 이동합니다."
+                );
+
+
+                /*
+                 * 실제 페이지 이동 시
+                 *
+                 * location.href =
+                 *     "next.html";
+                 */
+
+            }
+        );
+
+
+        /* ========================================
+           약관 상세 팝업
+        ======================================== */
+
+        const modal =
+            document.getElementById(
+                "termsModal"
+            );
+
+        const modalTitle =
+            document.getElementById(
+                "modalTitle"
+            );
+
+        const modalClose =
+            document.getElementById(
+                "modalClose"
+            );
+
+        const modalDim =
+            document.getElementById(
+                "modalDim"
+            );
+
+
+        document
+            .querySelectorAll(".terms-detail")
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        modalTitle.textContent =
+                            this.dataset.title;
+
+                        modal.classList.add(
+                            "is-open"
+                        );
+
+                    }
+                );
+
+            });
+
+
+        /* 팝업 닫기 */
+
+        modalClose.addEventListener(
+            "click",
+            function () {
+
+                modal.classList.remove(
+                    "is-open"
+                );
+
+            }
+        );
+
+
+        modalDim.addEventListener(
+            "click",
+            function () {
+
+                modal.classList.remove
+                    "is-open"
+                );
+
+            }
+        );
+
+
+    });
+
+</script>
+
+
+</body>
+</html>
